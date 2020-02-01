@@ -27,14 +27,18 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import frc.libraries.Autonomous.AutonomousMethods;
 import frc.libraries.Chassis.*;
 import edu.wpi.first.wpilibj.I2C;
 
 import frc.libraries.Controllers.TurnControl;
 import frc.libraries.Controllers.PneumaticsControl;
+import frc.libraries.Util.*;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -64,6 +68,10 @@ public class Robot extends TimedRobot
   Joystick lStick, rStick;
   
   XboxController cont1;
+
+  AutonomousMethods autoMethods;
+
+  Counter RunNum;
   
   /*
   TalonSRX controlPanelTalon;
@@ -121,6 +129,9 @@ public class Robot extends TimedRobot
     rStick = new Joystick(2);
     cont1 = new XboxController(0);
 
+    //Auto Stuff
+    RunNum = new Counter();
+
     /*
     //Talons
     controlPanelTalon = new TalonSRX(5);
@@ -147,6 +158,9 @@ public class Robot extends TimedRobot
     theConveyer = new Conveyer(conveyerTalon1, conveyerTalon2);
     */
 
+    //TODO
+    //autoMethods = new AutonomousMethods(RunNum, 6*Math.PI,  true, theTank);
+
   }
 
   @Override
@@ -161,7 +175,8 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousPeriodic()
   {
-    
+    //TODO
+    /*
     AutoTimer.start();
     while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*10)
     {
@@ -170,22 +185,18 @@ public class Robot extends TimedRobot
     }
     while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*12)
     {
-      theTank.Turn(.5);
+      
     }
     while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*13)
     {
       theTank.StraightFourEnc(16.125*42);
-    }
-    while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*14)
-    {
-      theTank.Turn(-.5);
     }
     while(AutTimer.get() < javax.management.timer.Timer.ONE_SECOND*15)
     {
       theIntake.runIntake(1);
       theTank.StraightFourEnc(4*42);
     }
-    
+    */
   }
 
   @Override

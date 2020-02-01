@@ -19,7 +19,6 @@ public class AutonomousMethods
 	Timer timer;
 	
 	//Controls
-	Encoder lEnc, rEnc;
 	Chassis chassis;
 	
 	boolean isEnc = false;
@@ -43,15 +42,11 @@ public class AutonomousMethods
 			turnControl = new TurnControl();
 			turnControl.GetNavx().reset();
 		}
-	}
-	
-	public AutonomousMethods(int RunNum,  double circumference,  boolean isNavx,  Chassis chassis,  Encoder lEnc,  Encoder rEnc)
-	{
-		this(RunNum, circumference, isNavx, chassis);
 		
-		this.lEnc = lEnc;
-		this.rEnc = rEnc;
-		isEnc = true;
+		if(chassis.HasEncoder())
+		{
+			isEnc = true;
+		}
 	}
 	
 	//Autonomous Commands
@@ -72,12 +67,11 @@ public class AutonomousMethods
 		{
 			if(!hasRun)
 			{
-				lEnc.reset();
-				rEnc.reset();
+				chassis.ResetEncoders();
 				hasRun = true;
 			}
 			
-			 double large = Math.max(Math.abs(lEnc.getDistance()), Math.abs(rEnc.getDistance())) / 256;
+			 double large = chassis.GetDistance();
 			
 			chassis.Straight(speed);
 			
@@ -133,8 +127,7 @@ public class AutonomousMethods
 		 double percent = Math.abs(angle)/360;
 		if(!hasRun)
 		{
-			lEnc.reset();
-			rEnc.reset();
+			chassis.ResetEncoders();
 		}
 		if(!hasRun&&angle<0)
 		{
@@ -149,8 +142,10 @@ public class AutonomousMethods
 		else if(!hasRun&&angle==0)
 			hasRun=true;
 		
-		 double large = Math.max(Math.abs(lEnc.get()), Math.abs(rEnc.get())) * 255;
+			//TODO
+		//double large = Math.max(Math.abs(lEnc.get()), Math.abs(rEnc.get())) * 255;
 		
+		/*
 		if(large*circumference >= (19.5*Math.PI)*percent)
 		{
 			chassis.Stop();
@@ -158,6 +153,7 @@ public class AutonomousMethods
 			hasRun = false;
 			RunNum++;
 		}
+		*/
 	}
 
 	public void turnNavx( double angle,  double MaxSpeed)
