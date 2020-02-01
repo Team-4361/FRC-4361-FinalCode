@@ -61,9 +61,9 @@ public class TankDrive implements Chassis {
 		
 		double SpeedChange = .1 * value;
 		
-		if(Math.abs(lEnc.getDistance()) > Math.abs(rEnc.getDistance()))
+		if(Math.abs(lFrontEnc.getPosition()) > Math.abs(rFrontEnc.getPosition()))
 			drive(value - SpeedChange, -value);
-		else if(Math.abs(lEnc.getDistance()) < Math.abs(rEnc.getDistance()))
+		else if(Math.abs(lFrontEnc.getPosition()) < Math.abs(rFrontEnc.getPosition()))
 			drive(value, -(value - SpeedChange));
 		else
 			Forward(value);
@@ -72,7 +72,7 @@ public class TankDrive implements Chassis {
 	public void Turn(double value)
 	{
 		Left.drive(value);
-		Right.drive(value);
+		Right.drive(-value);
 	}
 	
 	public double GetDistance()

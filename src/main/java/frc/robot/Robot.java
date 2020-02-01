@@ -44,7 +44,9 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
  */
 public class Robot extends TimedRobot
 {
-  
+  boolean ctrlmode;
+  double speedDivider;
+
   CANSparkMax DriveSpark1;
   CANSparkMax DriveSpark2;
   CANSparkMax DriveSpark3;
@@ -93,6 +95,8 @@ public class Robot extends TimedRobot
   public void robotInit()
   {
 
+    ctrlmode = false;
+    speedDivider = 1;
     //Sparks
     DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
     DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
@@ -119,12 +123,12 @@ public class Robot extends TimedRobot
 
     /*
     //Talons
-    controlPanelTalon = new TalonSRX(1);
-    shooterTalon1 = new TalonSRX(2);
-    shooterTalon2 = new TalonSRX(3);
-    intakeTalon = new TalonSRX(4);
-    conveyerTalon1 = new TalonSRX(5);
-    conveyerTalon2 = new TalonSRX(6);
+    controlPanelTalon = new TalonSRX(5);
+    shooterTalon1 = new TalonSRX(6);
+    shooterTalon2 = new TalonSRX(7);
+    intakeTalon = new TalonSRX(8);
+    conveyerTalon1 = new TalonSRX(9);
+    conveyerTalon2 = new TalonSRX(10);
 
 
     //Pneumatics
@@ -157,16 +161,31 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousPeriodic()
   {
-    /*
+    
     AutoTimer.start();
     while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*10)
     {
       theConveyer.runConveyer(1);
       theShooter.Shoot(1);
     }
-    theTank.StraightFourEnc(100);
-    */
-
+    while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*12)
+    {
+      theTank.Turn(.5);
+    }
+    while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*13)
+    {
+      theTank.StraightFourEnc(16.125*42);
+    }
+    while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*14)
+    {
+      theTank.Turn(-.5);
+    }
+    while(AutTimer.get() < javax.management.timer.Timer.ONE_SECOND*15)
+    {
+      theIntake.runIntake(1);
+      theTank.StraightFourEnc(4*42);
+    }
+    
   }
 
   @Override
@@ -238,36 +257,40 @@ public class Robot extends TimedRobot
     }
     */
 
-    boolean ctrlmode = false;
-    if(cont1.getStartButtonPressed())
+    if(cont1.getRawButtonPressed(7))
     {
       ctrlmode = !ctrlmode;
+      System.out.println("ctrlMode Attempt Change");
     }
 
 
-    double speedDivider = 1;
-    if(cont1.getBumperPressed(Hand.kLeft))
+    
+    if(cont1.getRawButtonPressed(5))
     {
       if(speedDivider > .25)
       {
         speedDivider = speedDivider - .25;
+        System.out.println("Speed 25% lower Successfully");
       }
     }
-    else if(cont1.getBumperPressed(Hand.kRight))
+    else if(cont1.getRawButtonPressed(6))
     {
       if(speedDivider < 1)
       {
         speedDivider = speedDivider + .25;
+        System.out.println("Speed 25% higher Successfully");
       }
     }
 
     if(ctrlmode)
     {
       theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
+      //System.out.println("ctrlMode Change Success to Sticks");
     }
     if(!ctrlmode)
     {
       theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
+      //System.out.println("ctrlMode Change Success to Controller");
     }
 
   }

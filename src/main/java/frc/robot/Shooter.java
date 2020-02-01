@@ -14,7 +14,7 @@ public class Shooter
         this.motor2 = backwardMotor;
     }
 
-    public void Shoot(int power)
+    public void Shoot(double power)
     {
         motor1.set(ControlMode.PercentOutput, power);
         motor2.set(ControlMode.PercentOutput, -power);
