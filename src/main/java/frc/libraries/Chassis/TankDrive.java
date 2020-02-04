@@ -6,7 +6,8 @@ import edu.wpi.first.wpilibj.Encoder;
 import frc.libraries.Controllers.*;
 import frc.libraries.Util.Constant;
 
-public class TankDrive implements Chassis {
+public class TankDrive implements Chassis
+{
 	Drive Left, Right;
 	Encoder lEnc, rEnc;
 	CANEncoder lFrontEnc, rFrontEnc, lBackEnc, rBackEnc;

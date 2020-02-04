@@ -6,14 +6,13 @@ import frc.libraries.Controllers.*;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.Encoder;
 
 
 public class AutonomousMethods
 {
 	//Autonomous Variables
-	int RunNum;
+	Counter RunNum;
 	boolean hasRun;
 	double circumference, robotWidth;
 	Timer timer;
@@ -24,9 +23,9 @@ public class AutonomousMethods
 	boolean isEnc = false;
 	public boolean isReversed = false, isNavx = true;
 	
-	public TurnControl turnControl;
+	public TurnControl turnControl;	
 	
-	public AutonomousMethods(int RunNum,  double circumference,  boolean isNavx,  Chassis chassis)
+	public AutonomousMethods(Counter RunNum,  double circumference,  boolean isNavx,  Chassis chassis)
 	{
 		this.RunNum = RunNum;
 		hasRun = false;
@@ -83,7 +82,7 @@ public class AutonomousMethods
 				
 				hasRun = false;
 				
-				RunNum++;
+				RunNum.Add();
 			}
 		}
 		
@@ -103,7 +102,7 @@ public class AutonomousMethods
 				chassis.Stop();
 				
 				hasRun = false;
-				RunNum++;
+				RunNum.Add();
 				timeNeeded = 0;
 				
 				timer.stop();
@@ -169,7 +168,7 @@ public class AutonomousMethods
 		 double RotateRate = turnControl.GetRotateRate();
 		chassis.Turn(RotateRate);
 		
-		/*if(turnControl.onTarget())
+		if(turnControl.onTarget())
 		{
 			if(timer.get() == 0)
 			{
@@ -184,14 +183,14 @@ public class AutonomousMethods
 				timer.reset();
 				
 				hasRun = false;
-				RunNum++;
+				RunNum.Add();
 			}
 		}
 		else
 		{
 			timer.stop();
 			timer.reset();
-		}*/
+		}
 	}
 	
 	public void wait( double time)
@@ -206,7 +205,7 @@ public class AutonomousMethods
 			timer.stop();
 			timer.reset();
 			hasRun = false;
-			RunNum++;
+			RunNum.Add();
 		}
 	}
 	

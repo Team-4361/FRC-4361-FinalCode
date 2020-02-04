@@ -60,7 +60,7 @@ public class ControlPanel
         }
     }
 
-    public void Spin(int spinSpeed)
+    public void Spin(double spinSpeed)
     {
         spinner.set(ControlMode.PercentOutput, spinSpeed);
     }

@@ -159,7 +159,7 @@ public class Robot extends TimedRobot
     */
 
     //TODO
-    //autoMethods = new AutonomousMethods(RunNum, 6*Math.PI,  true, theTank);
+    autoMethods = new AutonomousMethods(RunNum, 6*Math.PI,  true, theTank);
 
   }
 
