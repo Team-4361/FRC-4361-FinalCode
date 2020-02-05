@@ -2,27 +2,28 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
 
 public class Shooter
 {
-    private TalonSRX motor1;
-    private TalonSRX motor2;
+    private CANSparkMax motor1;
+    private CANSparkMax motor2;
 
-    public Shooter(TalonSRX forwardMotor, TalonSRX backwardMotor)
+    public Shooter(CANSparkMax forwardMotor, CANSparkMax backwardMotor)
     {
         this.motor1 = forwardMotor;
         this.motor2 = backwardMotor;
     }
 
-    public void Shoot(double power)
+	public void Shoot(double power)
     {
-        motor1.set(ControlMode.PercentOutput, power);
-        motor2.set(ControlMode.PercentOutput, -power);
+        motor1.set(power);
+        motor2.set(-power);
     }
     public void StopShooting()
     {
-        motor1.set(ControlMode.PercentOutput, 0);
-        motor2.set(ControlMode.PercentOutput, 0);
+        motor1.set(0);
+        motor2.set(0);
     }
 
 }

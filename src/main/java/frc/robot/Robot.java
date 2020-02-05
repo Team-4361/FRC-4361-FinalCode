@@ -55,6 +55,10 @@ public class Robot extends TimedRobot
   CANSparkMax DriveSpark2;
   CANSparkMax DriveSpark3;
   CANSparkMax DriveSpark4;
+  CANSparkMax ClimberSpark1;
+  CANSparkMax ClimberSpark2;
+  CANSparkMax shooterTalon1;
+  CANSparkMax shooterTalon2;
   
   CANEncoder DriveSparkEnc1;
   CANEncoder DriveSparkEnc2;
@@ -70,16 +74,21 @@ public class Robot extends TimedRobot
   XboxController cont1;
 
   AutonomousMethods autoMethods;
+  Autonomous auto;
 
   Counter RunNum;
+
+  Shuffleboard board;
+
   
-  /*
   TalonSRX controlPanelTalon;
-  TalonSRX shooterTalon1;
-  TalonSRX shooterTalon2;
-  TalonSRX intakeTalon;
+  TalonSRX intakeTalon1;
+  TalonSRX intakeTalon2;
+  TalonSRX intakeTalon3;
   TalonSRX conveyerTalon1;
   TalonSRX conveyerTalon2;
+  TalonSRX gripperTalon;
+
   
   PneumaticsControl pneumCont;
   DoubleSolenoid intakeSol;
@@ -93,7 +102,7 @@ public class Robot extends TimedRobot
   
   Timer AutoTimer;
   Conveyer theConveyer;
-  */
+  
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -110,6 +119,10 @@ public class Robot extends TimedRobot
     DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
     DriveSpark3 = new CANSparkMax(3, MotorType.kBrushless);
     DriveSpark4 = new CANSparkMax(4, MotorType.kBrushless);
+    ClimberSpark1 = new CANSparkMax(11, MotorType.kBrushless);
+    ClimberSpark2 = new CANSparkMax(12, MotorType.kBrushless);
+    shooterTalon1 = new CANSparkMax(6, MotorType.kBrushless);
+    shooterTalon2 = new CANSparkMax(7, MotorType.kBrushless);
 
     //Spark Encoders
     DriveSparkEnc1 = new CANEncoder(DriveSpark1);
@@ -132,14 +145,16 @@ public class Robot extends TimedRobot
     //Auto Stuff
     RunNum = new Counter();
 
-    /*
+    
     //Talons
     controlPanelTalon = new TalonSRX(5);
-    shooterTalon1 = new TalonSRX(6);
-    shooterTalon2 = new TalonSRX(7);
-    intakeTalon = new TalonSRX(8);
+    intakeTalon1 = new TalonSRX(8);
+    intakeTalon1 = new TalonSRX(14);
+    intakeTalon1 = new TalonSRX(15);
     conveyerTalon1 = new TalonSRX(9);
     conveyerTalon2 = new TalonSRX(10);
+    gripperTalon = new TalonSRX(13);
+
 
 
     //Pneumatics
@@ -153,50 +168,28 @@ public class Robot extends TimedRobot
     
     //Mechanism Final
     theShooter = new Shooter(shooterTalon1, shooterTalon2);
-    theIntake = new Intake(intakeTalon, intakeSol);
+    theIntake = new Intake(intakeTalon1, intakeTalon2, intakeTalon3);
     theControlPanel = new ControlPanel(controlPanelTalon, colorSens);
     theConveyer = new Conveyer(conveyerTalon1, conveyerTalon2);
-    */
+    
 
     //TODO
     autoMethods = new AutonomousMethods(RunNum, 6*Math.PI,  true, theTank);
+    auto = new Autonomous(theTank, theIntake, theShooter, theConveyer, autoMethods);
+    
 
   }
 
   @Override
   public void autonomousInit()
   {
-    /*
-    AutoTimer = new Timer();
-    AutoTimer.reset();
-    */
+    
   }
 
   @Override
   public void autonomousPeriodic()
   {
-    //TODO
-    /*
-    AutoTimer.start();
-    while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*10)
-    {
-      theConveyer.runConveyer(1);
-      theShooter.Shoot(1);
-    }
-    while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*12)
-    {
-      
-    }
-    while(AutoTimer.get() < javax.management.timer.Timer.ONE_SECOND*13)
-    {
-      theTank.StraightFourEnc(16.125*42);
-    }
-    while(AutTimer.get() < javax.management.timer.Timer.ONE_SECOND*15)
-    {
-      theIntake.runIntake(1);
-      theTank.StraightFourEnc(4*42);
-    }
-    */
+    
   }
 
   @Override
@@ -207,7 +200,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-    /*
+    
     //Control Panel Code
     if(cont1.getAButton())
     {
@@ -260,13 +253,15 @@ public class Robot extends TimedRobot
     }
     if(intakeState)
     {
-      theIntake.intakePistonMovement(DoubleSolenoid.Value.kForward);
+      
+      theIntake.intakeActuateUp();
+
     }
     else if(!intakeState)
     {
-      theIntake.intakePistonMovement(DoubleSolenoid.Value.kReverse);
+      theIntake.intakeActuateDown();
     }
-    */
+    
 
     if(cont1.getRawButtonPressed(7))
     {
