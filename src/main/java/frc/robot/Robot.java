@@ -135,7 +135,7 @@ public class Robot extends TimedRobot
     CANSparkMax[] rDriveMotors = {DriveSpark3,DriveSpark4};
     driveTrainL = new Drive(lDriveMotors);
     driveTrainR = new Drive(rDriveMotors);
-    theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, DriveSparkEnc3, DriveSparkEnc4);
+    theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
     
     //Sticks
     lStick = new Joystick(1);
@@ -174,8 +174,8 @@ public class Robot extends TimedRobot
     
 
     //TODO
-    autoMethods = new AutonomousMethods(RunNum, 6*Math.PI,  true, theTank);
-    auto = new Autonomous(theTank, theIntake, theShooter, theConveyer, autoMethods);
+    
+    auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
     
 
   }
@@ -215,10 +215,12 @@ public class Robot extends TimedRobot
     if(cont1.getBButton())
     {
       theShooter.Shoot(1);
+      theConveyer.runBothConveyers(1);
     }
     else
     { 
       theShooter.StopShooting();
+      theConveyer.stopConveyer();
     }
 
     //Conveyer Code
@@ -229,7 +231,7 @@ public class Robot extends TimedRobot
     }
     if(conveyerState)
     {
-      theConveyer.runConveyer(1);
+      theConveyer.runLowerConveyer(1);
     }
     else if(!conveyerState)
     {

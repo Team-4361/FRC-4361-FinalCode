@@ -31,7 +31,7 @@ public class Intake
     {
         Timer intakeTimer = new Timer();
         intakeTimer.start();
-        while(intakeTimer.get() < 1)
+        while(intakeTimer.get() < .5)
         {
             actuationMotor1.set(ControlMode.PercentOutput, -1);
             actuationMotor2.set(ControlMode.PercentOutput, -1);
@@ -45,7 +45,7 @@ public class Intake
     {
         Timer intakeTimer = new Timer();
         intakeTimer.start();
-        while(intakeTimer.get() < 1)
+        while(intakeTimer.get() < .5)
         {
             actuationMotor1.set(ControlMode.PercentOutput, -1);
             actuationMotor2.set(ControlMode.PercentOutput, -1);

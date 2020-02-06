@@ -15,16 +15,20 @@ public class Conveyer
         this.secondTalon = secondTalon;
     }
 
-    public void runConveyer(double power)
+    public void runLowerConveyer(double power)
     {
         firstTalon.set(ControlMode.PercentOutput, power);
-        secondTalon.set(ControlMode.PercentOutput, power); 
     }
 
-    public void reverseConveyer(double power)
+    public void reverseLowerConveyer(double power)
     {
         firstTalon.set(ControlMode.PercentOutput, -power);
-        secondTalon.set(ControlMode.PercentOutput, -power); 
+    }
+
+    public void runBothConveyers(double power)
+    {
+        firstTalon.set(ControlMode.PercentOutput, power);
+        secondTalon.set(ControlMode.PercentOutput, power);
     }
 
     public void stopConveyer()
