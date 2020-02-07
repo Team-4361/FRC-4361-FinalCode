@@ -13,7 +13,10 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.libraries.Controllers.Drive;
@@ -102,6 +105,9 @@ public class Robot extends TimedRobot
   
   Timer AutoTimer;
   Conveyer theConveyer;
+
+  ShuffleboardLayout autoChooser;
+  SendableChooser <String> autoSendable;
   
 
   /**
@@ -172,12 +178,18 @@ public class Robot extends TimedRobot
     theControlPanel = new ControlPanel(controlPanelTalon, colorSens);
     theConveyer = new Conveyer(conveyerTalon1, conveyerTalon2);
     
-
-    //TODO
     
     auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
-    
 
+
+    autoSendable = new SendableChooser<>();
+    autoSendable.addOption("Don't Move", "Don't Move");
+    autoSendable.addOption("Edge of Opposing Trench", "Start 1");
+    autoSendable.addOption("Loading Zone", "Start 2");
+    autoSendable.addOption("Middle of Field", "Start 3");
+    autoSendable.addOption("Edge of Shield Gen", "Start 4");
+    autoSendable.addOption("Middle of Power Port", "Start 5");
+    autoSendable.addOption("Middle of Friendly Trench", "Start 6");
   }
 
   @Override
@@ -189,7 +201,34 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousPeriodic()
   {
-    
+    if(autoSendable.getSelected() == "Don't Move" || autoSendable.getSelected() ==  "Don't Move")
+    {
+      auto.runAuto("Don't Move");
+    }
+    else if(autoSendable.getSelected() == "Edge of Opposing Trench" || autoSendable.getSelected() ==  "Start 1")
+    {
+      auto.runAuto("Start 1");
+    }
+    else if(autoSendable.getSelected() == "Loading Zone" || autoSendable.getSelected() ==  "Start 2")
+    {
+      auto.runAuto("Start 2");
+    }
+    else if(autoSendable.getSelected() == "Middle of Field" || autoSendable.getSelected() ==  "Start 3")
+    {
+      auto.runAuto("Start 3");
+    }
+    else if(autoSendable.getSelected() == "Edge of Shield Gen" || autoSendable.getSelected() ==  "Start 4")
+    {
+      auto.runAuto("Start 4");
+    }
+    else if(autoSendable.getSelected() == "Middle of Power Port" || autoSendable.getSelected() ==  "Start 5")
+    {
+      auto.runAuto("Start 5");
+    }
+    else if(autoSendable.getSelected() == "Middle of Friendly Trench" || autoSendable.getSelected() ==  "Start 6")
+    {
+      auto.runAuto("Start 6");
+    }
   }
 
   @Override

@@ -324,7 +324,115 @@ public class Autonomous
             {
                 methods.turnNavx(90, .5);
             }
-            //TODO
+            else if(RunNum.Get() == 2)
+            {
+                methods.goDistance(fromPortToTrench, 1);
+            }
+            else if(RunNum.Get() == 3)
+            {
+                methods.turnNavx(90, .5);
+            }
+            else if(RunNum.Get() == 4)
+            {
+                intake.intakeActuateDown();
+                intake.startIntake(1);
+                conveyer.runLowerConveyer(1);
+                methods.goDistance(-toBackTrench, -1);
+            }
+            else if(RunNum.Get() == 5)
+            {
+                methods.turnNavx(180, .5);
+            }
+            else if(RunNum.Get() == 6)
+            {
+                intake.intakeActuateUp();
+                intake.stopIntake();
+                conveyer.stopConveyer();
+                methods.goDistance(toBackTrench, 1);
+            }
+            else if(RunNum.Get() == 7)
+            {
+                methods.turnNavx(-90, .5);
+            }
+            else if(RunNum.Get() == 8)
+            {
+                methods.goDistance(fromPortToTrench, 1);
+            }
+            else if(RunNum.Get() == 9)
+            {
+                methods.turnNavx(90, .5);
+            }
+        }
+        else if (fromPos == "Start 6")
+        {
+            RunNum.Reset();
+            if(RunNum.Get() == 0)
+            {
+                methods.turn(-90, .5);
+            }
+            else if(RunNum.Get() == 1)
+            {
+                methods.goDistance(fromPortToTrench, 1);
+            }
+            else if(RunNum.Get() == 2)
+            {
+                methods.turn(90, .5);
+            }
+            else if(RunNum.Get() == 3)
+            {
+                shooter.Shoot(1);
+                methods.wait(2.0);
+            }
+            else if(RunNum.Get() == 4)
+            {
+                methods.turnNavx(90, .5);
+            }
+            else if(RunNum.Get() == 5)
+            {
+                methods.goDistance(fromPortToTrench, 1);
+            }
+            else if(RunNum.Get() == 6)
+            {
+                methods.turnNavx(90, .5);
+            }
+            else if(RunNum.Get() == 7)
+            {
+                intake.intakeActuateDown();
+                intake.startIntake(1);
+                conveyer.runLowerConveyer(1);
+                methods.goDistance(-toBackTrench, -1);
+            }
+            else if(RunNum.Get() == 8)
+            {
+                methods.turnNavx(180, .5);
+            }
+            else if(RunNum.Get() == 9)
+            {
+                intake.intakeActuateUp();
+                intake.stopIntake();
+                conveyer.stopConveyer();
+                methods.goDistance(toBackTrench, 1);
+            }
+            else if(RunNum.Get() == 10)
+            {
+                methods.turnNavx(-90, .5);
+            }
+            else if(RunNum.Get() == 11)
+            {
+                methods.goDistance(fromPortToTrench, 1);
+            }
+            else if(RunNum.Get() == 12)
+            {
+                methods.turnNavx(90, .5);
+            }
+        }
+        else if(fromPos == "Don't Move")
+        {
+            methods.goDistance(0, 1);
+        }
+        else
+        {
+            methods.goDistance(100, 1);
         }
     }
     
