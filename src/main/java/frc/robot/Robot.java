@@ -1,46 +1,27 @@
 package frc.robot;
 /*----------------------------------------------------------------------------*/
 
-/* Copyright (c) 2018-2019 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.wpilibj.PWMSpeedController;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Joystick;
-import frc.libraries.Controllers.Drive;
-
-import com.ctre.phoenix.*;
-import com.ctre.phoenix.sensors.*;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.ColorSensorV3;
 
-import frc.libraries.Autonomous.AutonomousMethods;
-import frc.libraries.Chassis.*;
-import edu.wpi.first.wpilibj.I2C;
-
-import frc.libraries.Controllers.TurnControl;
-import frc.libraries.Controllers.PneumaticsControl;
-import frc.libraries.Util.*;
-
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.libraries.Autonomous.AutonomousMethods;
+import frc.libraries.Chassis.TankDrive;
+import frc.libraries.Controllers.Drive;
+import frc.libraries.Util.Counter;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -60,13 +41,16 @@ public class Robot extends TimedRobot
   CANSparkMax DriveSpark4;
   CANSparkMax ClimberSpark1;
   CANSparkMax ClimberSpark2;
-  CANSparkMax shooterTalon1;
-  CANSparkMax shooterTalon2;
+  CANSparkMax shooterSpark1;
+  CANSparkMax shooterSpark2;
+  CANSparkMax controlPanelSpark;
   
   CANEncoder DriveSparkEnc1;
   CANEncoder DriveSparkEnc2;
   CANEncoder DriveSparkEnc3;
   CANEncoder DriveSparkEnc4;
+  CANEncoder shooterSparkEnc1;
+  CANEncoder shooterSparkEnc2;
   
   Drive driveTrainL;
   Drive driveTrainR;
@@ -84,17 +68,12 @@ public class Robot extends TimedRobot
   Shuffleboard board;
 
   
-  TalonSRX controlPanelTalon;
   TalonSRX intakeTalon1;
   TalonSRX intakeTalon2;
   TalonSRX intakeTalon3;
   TalonSRX conveyerTalon1;
   TalonSRX conveyerTalon2;
   TalonSRX gripperTalon;
-
-  
-  PneumaticsControl pneumCont;
-  DoubleSolenoid intakeSol;
   
   Shooter theShooter;
   Intake theIntake;
@@ -109,6 +88,11 @@ public class Robot extends TimedRobot
   ShuffleboardLayout autoChooser;
   SendableChooser <String> autoSendable;
   
+  DigitalInput intakeLim1, intakeLim2;
+
+  boolean red, green, blue, yellow;
+
+  boolean shooterTest, climberTest, intakeTest, driveTest, conveyerTest, controlTest, fullUse;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -117,66 +101,79 @@ public class Robot extends TimedRobot
   @Override
   public void robotInit()
   {
+    shooterTest = false;
+    climberTest = false;
+    intakeTest = false;
+    driveTest = false;
+    conveyerTest = false;
+    controlTest = false;
+    fullUse = false;
 
-    ctrlmode = false;
-    speedDivider = 1;
-    //Sparks
-    DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
-    DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
-    DriveSpark3 = new CANSparkMax(3, MotorType.kBrushless);
-    DriveSpark4 = new CANSparkMax(4, MotorType.kBrushless);
-    ClimberSpark1 = new CANSparkMax(11, MotorType.kBrushless);
-    ClimberSpark2 = new CANSparkMax(12, MotorType.kBrushless);
-    shooterTalon1 = new CANSparkMax(6, MotorType.kBrushless);
-    shooterTalon2 = new CANSparkMax(7, MotorType.kBrushless);
-
-    //Spark Encoders
-    DriveSparkEnc1 = new CANEncoder(DriveSpark1);
-    DriveSparkEnc2 = new CANEncoder(DriveSpark2);
-    DriveSparkEnc3 = new CANEncoder(DriveSpark3);
-    DriveSparkEnc4 = new CANEncoder(DriveSpark4);
-
-    //Drive Train Information
-    CANSparkMax[] lDriveMotors = {DriveSpark1,DriveSpark2};
-    CANSparkMax[] rDriveMotors = {DriveSpark3,DriveSpark4};
-    driveTrainL = new Drive(lDriveMotors);
-    driveTrainR = new Drive(rDriveMotors);
-    theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
-    
+    //DRIVE TRAIN
+    if(driveTest || fullUse)
+    {
+      ctrlmode = false;
+      speedDivider = 1;
+      DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
+      DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
+      DriveSpark3 = new CANSparkMax(3, MotorType.kBrushless);
+      DriveSpark4 = new CANSparkMax(4, MotorType.kBrushless);
+      DriveSparkEnc1 = new CANEncoder(DriveSpark1);
+      DriveSparkEnc2 = new CANEncoder(DriveSpark2);
+      DriveSparkEnc3 = new CANEncoder(DriveSpark3);
+      DriveSparkEnc4 = new CANEncoder(DriveSpark4);
+      CANSparkMax[] lDriveMotors = {DriveSpark1,DriveSpark2};
+      CANSparkMax[] rDriveMotors = {DriveSpark3,DriveSpark4};
+      driveTrainL = new Drive(lDriveMotors);
+      driveTrainR = new Drive(rDriveMotors);
+      theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
+    }
+    //CONTROL PANEL
+    if(controlTest || fullUse)
+    {
+      controlPanelSpark = new CANSparkMax(5, MotorType.kBrushless);
+      i2cPort = I2C.Port.kOnboard;
+      colorSens = new ColorSensorV3(i2cPort);
+      theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
+    }
+    //SHOOTER
+    if(shooterTest || fullUse)
+    {
+      shooterSpark1 = new CANSparkMax(6, MotorType.kBrushless);
+      shooterSpark2 = new CANSparkMax(7, MotorType.kBrushless);
+      shooterSparkEnc1 = new CANEncoder(shooterSpark1);
+      shooterSparkEnc2 = new CANEncoder(shooterSpark2);  
+      theShooter = new Shooter(shooterSpark1, shooterSpark2);
+    }
+    //CLIMBER
+    if(climberTest || fullUse)
+    {
+      ClimberSpark1 = new CANSparkMax(11, MotorType.kBrushless);
+      ClimberSpark2 = new CANSparkMax(12, MotorType.kBrushless);
+      gripperTalon = new TalonSRX(13);
+    }
+    //INTAKE
+    if(intakeTest || fullUse)
+    {
+      intakeTalon1 = new TalonSRX(8);
+      intakeTalon2 = new TalonSRX(14);
+      intakeLim1 = new DigitalInput(0);
+      intakeLim2 = new DigitalInput(1);
+      theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
+    }
+    //CONVEYER
+    if(conveyerTest || fullUse)
+    {
+      conveyerTalon1 = new TalonSRX(9);
+      conveyerTalon2 = new TalonSRX(10);
+      theConveyer = new Conveyer(conveyerTalon1, conveyerTalon2);
+    }
     //Sticks
     lStick = new Joystick(1);
     rStick = new Joystick(2);
     cont1 = new XboxController(0);
 
-    //Auto Stuff
     RunNum = new Counter();
-
-    
-    //Talons
-    controlPanelTalon = new TalonSRX(5);
-    intakeTalon1 = new TalonSRX(8);
-    intakeTalon1 = new TalonSRX(14);
-    intakeTalon1 = new TalonSRX(15);
-    conveyerTalon1 = new TalonSRX(9);
-    conveyerTalon2 = new TalonSRX(10);
-    gripperTalon = new TalonSRX(13);
-
-
-
-    //Pneumatics
-    pneumCont = new PneumaticsControl(1, 2, 4.547368);
-    intakeSol = new DoubleSolenoid(1, 2);
-
-    //Color Sensor
-    i2cPort = I2C.Port.kOnboard;
-    colorSens = new ColorSensorV3(i2cPort);
-    
-    
-    //Mechanism Final
-    theShooter = new Shooter(shooterTalon1, shooterTalon2);
-    theIntake = new Intake(intakeTalon1, intakeTalon2, intakeTalon3);
-    theControlPanel = new ControlPanel(controlPanelTalon, colorSens);
-    theConveyer = new Conveyer(conveyerTalon1, conveyerTalon2);
     
     
     auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
@@ -190,6 +187,9 @@ public class Robot extends TimedRobot
     autoSendable.addOption("Edge of Shield Gen", "Start 4");
     autoSendable.addOption("Middle of Power Port", "Start 5");
     autoSendable.addOption("Middle of Friendly Trench", "Start 6");
+
+    SmartDashboard.putData("Autonomous Chooser", autoSendable);
+
   }
 
   @Override
@@ -229,115 +229,161 @@ public class Robot extends TimedRobot
     {
       auto.runAuto("Start 6");
     }
+    else
+    {
+      auto.runAuto("");
+    }
   }
 
   @Override
   public void teleopInit()
   {
+    
   }
 
   @Override
   public void teleopPeriodic()
   {
-    
-    //Control Panel Code
-    if(cont1.getAButton())
+    if(controlTest || fullUse)
     {
-      theControlPanel.Spin(1);
-    }
-    else
-    {
-      theControlPanel.StopSpin();
+      //Control Panel Code
+      if(cont1.getAButton())
+      {
+        theControlPanel.Spin(1);
+      }
+      else
+      {
+        theControlPanel.StopSpin();
+      }
+
+      if(theControlPanel.matchColor() == "Blue")
+      {
+        red = false;
+        blue = true;
+        green = false;
+        yellow = false;
+      }
+      if(theControlPanel.matchColor() == "Red")
+      {
+        red = true;
+        blue = false;
+        green = false;
+        yellow = false;
+      }
+      if(theControlPanel.matchColor() == "Green")
+      {
+        red = false;
+        blue = false;
+        green = true;
+        yellow = false;
+      }
+      if(theControlPanel.matchColor() == "Yellow")
+      {
+        red = false;
+        blue = false;
+        green = false;
+        yellow = true;
+      }
+  
+      SmartDashboard.putBoolean("Color Sensor Blue", blue);
+      SmartDashboard.putBoolean("Color Sensor Red", red);
+      SmartDashboard.putBoolean("Color Sensor Green", green);
+      SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
     }
 
-    //Shooter Code
-    if(cont1.getBButton())
+    if(shooterTest || fullUse)
     {
-      theShooter.Shoot(1);
-      theConveyer.runBothConveyers(1);
-    }
-    else
-    { 
-      theShooter.StopShooting();
-      theConveyer.stopConveyer();
-    }
-
-    //Conveyer Code
-    boolean conveyerState = false;
-    if(cont1.getYButtonPressed())
-    {
-      conveyerState = !conveyerState;
-    }
-    if(conveyerState)
-    {
-      theConveyer.runLowerConveyer(1);
-    }
-    else if(!conveyerState)
-    {
-      theConveyer.stopConveyer();
+      //Shooter Code
+      if(cont1.getBButton())
+      {
+        theShooter.Shoot(1);
+        //theConveyer.runBothConveyers(1);
+      }
+      else
+      { 
+        theShooter.StopShooting();
+        //theConveyer.stopConveyer();
+      }
     }
 
+    if(conveyerTest || fullUse)
+    {
+      //Conveyer Code
+      boolean conveyerState = false;
+      if(cont1.getYButtonPressed())
+      {
+        conveyerState = !conveyerState;
+      }
+      if(conveyerState)
+      {
+        theConveyer.runLowerConveyer(1);
+      }
+      else if(!conveyerState)
+      {
+        theConveyer.stopConveyer();
+      }
+    }
 
-    //Intake Code
-    if(cont1.getBumper(Hand.kRight))
+    if(intakeTest || fullUse)
     {
-      theIntake.startIntake(1);
+      //Intake Code
+      if(cont1.getBumper(Hand.kRight))
+      {
+        theIntake.startIntake(1);
+      }
+      else
+      {
+        theIntake.stopIntake();
+      }
+      boolean intakeState = false;
+      if(cont1.getXButtonPressed())
+      {
+        intakeState = !intakeState;
+      }
+      if(intakeState)
+      {
+        
+        theIntake.intakeActuateUp();
+  
+      }
+      else if(!intakeState)
+      {
+        theIntake.intakeActuateDown();
+      }  
     }
-    else
+
+    if(driveTest || fullUse)
     {
-      theIntake.stopIntake();
-    }
-    boolean intakeState = false;
-    if(cont1.getXButtonPressed())
-    {
-      intakeState = !intakeState;
-    }
-    if(intakeState)
-    {
+      if(cont1.getRawButtonPressed(7))
+      {
+        ctrlmode = !ctrlmode;
+      }
       
-      theIntake.intakeActuateUp();
-
-    }
-    else if(!intakeState)
-    {
-      theIntake.intakeActuateDown();
-    }
-    
-
-    if(cont1.getRawButtonPressed(7))
-    {
-      ctrlmode = !ctrlmode;
-      System.out.println("ctrlMode Attempt Change");
-    }
-
-
-    
-    if(cont1.getRawButtonPressed(5))
-    {
-      if(speedDivider > .25)
+      if(cont1.getRawButtonPressed(5))
       {
-        speedDivider = speedDivider - .25;
-        System.out.println("Speed 25% lower Successfully");
+        if(speedDivider > .25)
+        {
+          speedDivider = speedDivider - .25;
+        }
       }
-    }
-    else if(cont1.getRawButtonPressed(6))
-    {
-      if(speedDivider < 1)
+      else if(cont1.getRawButtonPressed(6))
       {
-        speedDivider = speedDivider + .25;
-        System.out.println("Speed 25% higher Successfully");
+        if(speedDivider < 1)
+        {
+          speedDivider = speedDivider + .25;
+        }
       }
-    }
-
-    if(ctrlmode)
-    {
-      theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
-      //System.out.println("ctrlMode Change Success to Sticks");
-    }
-    if(!ctrlmode)
-    {
-      theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
-      //System.out.println("ctrlMode Change Success to Controller");
+  
+      if(ctrlmode)
+      {
+        theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
+        //System.out.println("ctrlMode Change Success to Sticks");
+      }
+      if(!ctrlmode)
+      {
+        theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
+        //System.out.println("ctrlMode Change Success to Controller");
+      }
     }
 
   }

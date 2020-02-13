@@ -7,11 +7,12 @@ import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.util.Color;
 
 import com.revrobotics.ColorMatchResult;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 
 public class ControlPanel
 {
-    private TalonSRX spinner;
+    private CANSparkMax spinner;
     private ColorSensorV3 colorSensor;
     private final ColorMatch colorMatcher;
     private final Color kBlueTarget;
@@ -19,7 +20,7 @@ public class ControlPanel
     private final Color kRedTarget;
     private final Color kYellowTarget;
 
-    public ControlPanel(TalonSRX spinner, ColorSensorV3 colorSensor)
+    public ControlPanel(CANSparkMax spinner, ColorSensorV3 colorSensor)
     {
         this.spinner = spinner;
         this.colorSensor = colorSensor;
@@ -35,9 +36,9 @@ public class ControlPanel
 
     }
     
-    public String matchColor(Color detectedColor)
+    public String matchColor()
     {
-        ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
+        ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
         if (match.color == kBlueTarget)
         {
             return "Blue";
@@ -62,11 +63,11 @@ public class ControlPanel
 
     public void Spin(double spinSpeed)
     {
-        spinner.set(ControlMode.PercentOutput, spinSpeed);
+        spinner.set(spinSpeed);
     }
     
     public void StopSpin()
     {
-        spinner.set(ControlMode.PercentOutput, 0);
+        spinner.set(0);
     }
 }
