@@ -20,6 +20,11 @@ public class Intake
         this.topLim = topLim;
         this.botLim = botLim;
     }
+    public Intake(TalonSRX intakeMotor, TalonSRX actuationMotor1)
+    {
+        this.motor1 = intakeMotor;
+        this.actuationMotor1 = actuationMotor1;
+    }
 
 	public void startIntake(double power)
     {
@@ -32,24 +37,42 @@ public class Intake
 
     public void intakeActuateUp()
     {
-        if(!topLim.get())
+        if(topLim != null && botLim != null)
+        {
+            if(!topLim.get())
+            {
+                actuationMotor1.set(ControlMode.PercentOutput, 1);
+            }
+            else if(topLim.get())
+            {
+                actuationMotor1.set(ControlMode.PercentOutput, 0);
+            }
+        }
+        else
         {
             actuationMotor1.set(ControlMode.PercentOutput, 1);
-        }
-        else if(topLim.get())
-        {
-            actuationMotor1.set(ControlMode.PercentOutput, 0);
         }
     }
     public void intakeActuateDown()
     {
-        if(!botLim.get())
+        if(topLim != null && botLim != null)
+        {
+            if(!botLim.get())
+            {
+                actuationMotor1.set(ControlMode.PercentOutput, -1);
+            }
+            else if(botLim.get())
+            {
+                actuationMotor1.set(ControlMode.PercentOutput, 0);
+            }
+        }
+        else
         {
             actuationMotor1.set(ControlMode.PercentOutput, -1);
         }
-        else if(botLim.get())
-        {
-            actuationMotor1.set(ControlMode.PercentOutput, 0);
-        }
+    }
+    public void stopActuation()
+    {
+        actuationMotor1.set(ControlMode.PercentOutput, 0);
     }
 }

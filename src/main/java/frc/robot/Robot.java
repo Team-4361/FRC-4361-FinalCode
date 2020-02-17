@@ -1,11 +1,13 @@
 package frc.robot;
 /*----------------------------------------------------------------------------*/
 
+
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -67,17 +69,21 @@ public class Robot extends TimedRobot
 
   Shuffleboard board;
 
+  boolean conveyerState;
+  boolean intakeState;
+  boolean climberState;
   
   TalonSRX intakeTalon1;
   TalonSRX intakeTalon2;
   TalonSRX intakeTalon3;
   TalonSRX conveyerTalon1;
-  TalonSRX conveyerTalon2;
   TalonSRX gripperTalon;
   
   Shooter theShooter;
   Intake theIntake;
   ControlPanel theControlPanel;
+  Climber theClimber;
+  Gripper theGripper;
   
   ColorSensorV3 colorSens;
   I2C.Port i2cPort;
@@ -88,11 +94,15 @@ public class Robot extends TimedRobot
   ShuffleboardLayout autoChooser;
   SendableChooser <String> autoSendable;
   
-  DigitalInput intakeLim1, intakeLim2;
+  DigitalInput intakeLim1, intakeLim2, climberBotLim, climberTopLim;
 
   boolean red, green, blue, yellow;
 
-  boolean shooterTest, climberTest, intakeTest, driveTest, conveyerTest, controlTest, fullUse;
+  boolean shooterTest, climberTest, intakeTest, driveTest, conveyerTest, controlTest, basicMode, fullUse;
+
+  DigitalInput conveyerBottom, conveyerStart, conveyerEnd;
+
+  Timer intakeActuationTimer;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -105,9 +115,10 @@ public class Robot extends TimedRobot
     climberTest = false;
     intakeTest = false;
     driveTest = false;
-    conveyerTest = false;
+    conveyerTest = true;
     controlTest = false;
     fullUse = false;
+    basicMode = false;
 
     //DRIVE TRAIN
     if(driveTest || fullUse)
@@ -132,9 +143,16 @@ public class Robot extends TimedRobot
     if(controlTest || fullUse)
     {
       controlPanelSpark = new CANSparkMax(5, MotorType.kBrushless);
-      i2cPort = I2C.Port.kOnboard;
-      colorSens = new ColorSensorV3(i2cPort);
-      theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
+      if(!basicMode)
+      {
+        i2cPort = I2C.Port.kOnboard;
+        colorSens = new ColorSensorV3(i2cPort);
+        theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
+      }
+      else
+      {
+        theControlPanel = new ControlPanel(controlPanelSpark);
+      }
     }
     //SHOOTER
     if(shooterTest || fullUse)
@@ -149,24 +167,57 @@ public class Robot extends TimedRobot
     if(climberTest || fullUse)
     {
       ClimberSpark1 = new CANSparkMax(11, MotorType.kBrushless);
+      ClimberSpark1.setIdleMode(IdleMode.kBrake);
       ClimberSpark2 = new CANSparkMax(12, MotorType.kBrushless);
+      ClimberSpark2.setIdleMode(IdleMode.kBrake);
       gripperTalon = new TalonSRX(13);
+      if(!basicMode)
+      {
+        climberBotLim = new DigitalInput(5);
+        climberTopLim = new DigitalInput(6);
+        theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim);
+      }
+      else
+      {
+        theClimber = new Climber(ClimberSpark1, ClimberSpark2);
+      }
+      theGripper = new Gripper(gripperTalon);
     }
     //INTAKE
     if(intakeTest || fullUse)
     {
       intakeTalon1 = new TalonSRX(8);
       intakeTalon2 = new TalonSRX(14);
-      intakeLim1 = new DigitalInput(0);
-      intakeLim2 = new DigitalInput(1);
-      theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
+      if(!basicMode)
+      {
+        intakeLim1 = new DigitalInput(0);
+        intakeLim2 = new DigitalInput(4);
+        theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
+      }
+      else
+      {
+        theIntake = new Intake(intakeTalon1, intakeTalon2);
+      }
+
+      intakeActuationTimer = new Timer();
+      intakeActuationTimer.reset();
+
     }
     //CONVEYER
     if(conveyerTest || fullUse)
     {
       conveyerTalon1 = new TalonSRX(9);
-      conveyerTalon2 = new TalonSRX(10);
-      theConveyer = new Conveyer(conveyerTalon1, conveyerTalon2);
+      if(!basicMode)
+      {
+        conveyerBottom = new DigitalInput(1);
+        conveyerStart = new DigitalInput(2);
+        conveyerEnd = new DigitalInput(3);
+        theConveyer = new Conveyer(conveyerTalon1, conveyerBottom, conveyerStart, conveyerEnd);
+      }
+      else
+      {
+        theConveyer = new Conveyer(conveyerTalon1);
+      }
     }
     //Sticks
     lStick = new Joystick(1);
@@ -175,9 +226,10 @@ public class Robot extends TimedRobot
 
     RunNum = new Counter();
     
-    
-    auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
-
+    if(theTank !=null && theIntake !=null && theShooter !=null && theConveyer !=null)
+    {
+      auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
+    }
 
     autoSendable = new SendableChooser<>();
     autoSendable.addOption("Don't Move", "Don't Move");
@@ -189,6 +241,10 @@ public class Robot extends TimedRobot
     autoSendable.addOption("Middle of Friendly Trench", "Start 6");
 
     SmartDashboard.putData("Autonomous Chooser", autoSendable);
+
+    conveyerState = false;
+    intakeState = false;
+    climberState = false;
 
   }
 
@@ -249,46 +305,55 @@ public class Robot extends TimedRobot
       //Control Panel Code
       if(cont1.getAButton())
       {
-        theControlPanel.Spin(1);
+        if(!basicMode)
+        {
+          theControlPanel.Spin(1, true);
+        }
+        if(basicMode)
+        {
+          theControlPanel.Spin(1, false);
+        }
       }
       else
       {
         theControlPanel.StopSpin();
       }
-
-      if(theControlPanel.matchColor() == "Blue")
+      if(!basicMode)
       {
-        red = false;
-        blue = true;
-        green = false;
-        yellow = false;
+        if(theControlPanel.matchColor() == "Blue")
+        {
+          red = false;
+          blue = true;
+          green = false;
+          yellow = false;
+        }
+        if(theControlPanel.matchColor() == "Red")
+        {
+          red = true;
+          blue = false;
+          green = false;
+          yellow = false;
+        }
+        if(theControlPanel.matchColor() == "Green")
+        {
+          red = false;
+          blue = false;
+          green = true;
+          yellow = false;
+        }
+        if(theControlPanel.matchColor() == "Yellow")
+        {
+          red = false;
+          blue = false;
+          green = false;
+          yellow = true;
+        }
+    
+        SmartDashboard.putBoolean("Color Sensor Blue", blue);
+        SmartDashboard.putBoolean("Color Sensor Red", red);
+        SmartDashboard.putBoolean("Color Sensor Green", green);
+        SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
       }
-      if(theControlPanel.matchColor() == "Red")
-      {
-        red = true;
-        blue = false;
-        green = false;
-        yellow = false;
-      }
-      if(theControlPanel.matchColor() == "Green")
-      {
-        red = false;
-        blue = false;
-        green = true;
-        yellow = false;
-      }
-      if(theControlPanel.matchColor() == "Yellow")
-      {
-        red = false;
-        blue = false;
-        green = false;
-        yellow = true;
-      }
-  
-      SmartDashboard.putBoolean("Color Sensor Blue", blue);
-      SmartDashboard.putBoolean("Color Sensor Red", red);
-      SmartDashboard.putBoolean("Color Sensor Green", green);
-      SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
     }
 
     if(shooterTest || fullUse)
@@ -297,30 +362,27 @@ public class Robot extends TimedRobot
       if(cont1.getBButton())
       {
         theShooter.Shoot(1);
-        //theConveyer.runBothConveyers(1);
+        if(fullUse)
+        {
+          theConveyer.runConveyer(1, false);
+        }
       }
       else
       { 
         theShooter.StopShooting();
-        //theConveyer.stopConveyer();
+        if(fullUse)
+        {
+          theConveyer.stopConveyer();
+        }
       }
     }
 
     if(conveyerTest || fullUse)
     {
       //Conveyer Code
-      boolean conveyerState = false;
-      if(cont1.getYButtonPressed())
+      if(cont1.getBumper(Hand.kLeft))
       {
-        conveyerState = !conveyerState;
-      }
-      if(conveyerState)
-      {
-        theConveyer.runLowerConveyer(1);
-      }
-      else if(!conveyerState)
-      {
-        theConveyer.stopConveyer();
+        theConveyer.runConveyer(1, false);
       }
     }
 
@@ -329,13 +391,20 @@ public class Robot extends TimedRobot
       //Intake Code
       if(cont1.getBumper(Hand.kRight))
       {
-        theIntake.startIntake(1);
+        theIntake.startIntake(.5);
+        if(fullUse)
+        {
+          theConveyer.runConveyer(1, true);
+        }
       }
       else
       {
         theIntake.stopIntake();
+        if(fullUse)
+        {
+          theConveyer.stopConveyer();
+        }
       }
-      boolean intakeState = false;
       if(cont1.getXButtonPressed())
       {
         intakeState = !intakeState;
@@ -350,6 +419,52 @@ public class Robot extends TimedRobot
       {
         theIntake.intakeActuateDown();
       }  
+    }
+
+    if(climberTest || fullUse)
+    {
+      if(cont1.getYButtonPressed())
+      {
+        climberState = !climberState;
+      }
+      if(climberState)
+      {
+        if(!basicMode)
+        {
+          theClimber.climberUp(1, true);
+        }
+        else
+        {
+          theClimber.climberUp(1, false);
+          if(cont1.getBumperPressed(Hand.kRight))
+          {
+            theClimber.stopClimber();
+          }
+        }
+      }
+      if(!climberState)
+      {
+        if(!basicMode)
+        {
+          theClimber.climberDown(1, true);
+        }
+        else
+        {
+          theClimber.climberDown(1, false);
+          if(cont1.getBumperPressed(Hand.kRight))
+          {
+            theClimber.stopClimber();
+          }
+        }
+      }
+      if(cont1.getPOV() == 0)
+      {
+        theGripper.MoveRight(1);
+      }
+      if(cont1.getPOV() == 180)
+      {
+        theGripper.MoveLeft(1);
+      }
     }
 
     if(driveTest || fullUse)

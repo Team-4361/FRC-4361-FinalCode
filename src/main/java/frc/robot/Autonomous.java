@@ -93,7 +93,7 @@ public class Autonomous
             {
                 intake.intakeActuateDown();
                 intake.startIntake(1);
-                conveyer.runLowerConveyer(1);
+                conveyer.runConveyer(1, true);
                 methods.goDistance(-toBackTrench, -1);
             }
             else if(RunNum.Get() == 8)
@@ -159,7 +159,7 @@ public class Autonomous
             {
                 intake.intakeActuateDown();
                 intake.startIntake(1);
-                conveyer.runLowerConveyer(1);
+                conveyer.runConveyer(1, true);
                 methods.goDistance(-toBackTrench, -1);
             }
             else if(RunNum.Get() == 8)
@@ -222,7 +222,7 @@ public class Autonomous
             {
                 intake.intakeActuateDown();
                 intake.startIntake(1);
-                conveyer.runLowerConveyer(1);
+                conveyer.runConveyer(1, true);
                 methods.goDistance(-toBackTrench, -1);
             }
             else if(RunNum.Get() == 8)
@@ -285,7 +285,7 @@ public class Autonomous
             {
                 intake.intakeActuateDown();
                 intake.startIntake(1);
-                conveyer.runLowerConveyer(1);
+                conveyer.runConveyer(1, true);
                 methods.goDistance(-toBackTrench, -1);
             }
             else if(RunNum.Get() == 8)
@@ -336,7 +336,7 @@ public class Autonomous
             {
                 intake.intakeActuateDown();
                 intake.startIntake(1);
-                conveyer.runLowerConveyer(1);
+                conveyer.runConveyer(1, true);
                 methods.goDistance(-toBackTrench, -1);
             }
             else if(RunNum.Get() == 5)
@@ -399,7 +399,7 @@ public class Autonomous
             {
                 intake.intakeActuateDown();
                 intake.startIntake(1);
-                conveyer.runLowerConveyer(1);
+                conveyer.runConveyer(1, true);
                 methods.goDistance(-toBackTrench, -1);
             }
             else if(RunNum.Get() == 8)

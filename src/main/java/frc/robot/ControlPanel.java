@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.ColorSensorV3;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 
 import com.revrobotics.ColorMatchResult;
@@ -19,11 +20,13 @@ public class ControlPanel
     private final Color kGreenTarget;
     private final Color kRedTarget;
     private final Color kYellowTarget;
+    private String gameData;
 
-    public ControlPanel(CANSparkMax spinner, ColorSensorV3 colorSensor)
+
+    public ControlPanel(CANSparkMax controlPanelSpark, ColorSensorV3 colorSens)
     {
-        this.spinner = spinner;
-        this.colorSensor = colorSensor;
+        this.spinner = controlPanelSpark;
+        this.colorSensor = colorSens;
         colorMatcher = new ColorMatch();
         kBlueTarget = ColorMatch.makeColor(0.143, 0.427, 0.429);
         kGreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
@@ -32,38 +35,85 @@ public class ControlPanel
         colorMatcher.addColorMatch(kBlueTarget);
         colorMatcher.addColorMatch(kGreenTarget);
         colorMatcher.addColorMatch(kRedTarget);
-        colorMatcher.addColorMatch(kYellowTarget);    
-
+        colorMatcher.addColorMatch(kYellowTarget);
+        gameData = DriverStation.getInstance().getGameSpecificMessage();
     }
-    
-    public String matchColor()
+
+    public ControlPanel(CANSparkMax controlPanelSpark)
+    {
+        this.spinner = controlPanelSpark;
+        colorMatcher = new ColorMatch();
+        kBlueTarget = ColorMatch.makeColor(0.143, 0.427, 0.429);
+        kGreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
+        kRedTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
+        kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
+        colorMatcher.addColorMatch(kBlueTarget);
+        colorMatcher.addColorMatch(kGreenTarget);
+        colorMatcher.addColorMatch(kRedTarget);
+        colorMatcher.addColorMatch(kYellowTarget);
+        gameData = DriverStation.getInstance().getGameSpecificMessage();
+	}
+	public String matchColor()
     {
         ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
         if (match.color == kBlueTarget)
         {
-            return "Blue";
+            return "B";
         }
         else if (match.color == kRedTarget)
         {
-            return "Red";
+            return "R";
         }
         else if (match.color == kGreenTarget)
         {
-            return "Green";
+            return "G";
         }
         else if (match.color == kYellowTarget)
         {
-            return "Yellow";
+            return "Y";
         }
         else
         {
-            return "Unknown";
+            return "";
         }
     }
 
-    public void Spin(double spinSpeed)
+    public void Spin(double spinSpeed, boolean automatic)
     {
-        spinner.set(spinSpeed);
+        if(automatic)
+        {
+            if(gameData.length() > 0)
+            {
+                if(Character.toString(gameData.charAt(0)) == "R" && matchColor() == "B")
+                {
+                    //GAME NEEDS RED
+                    StopSpin();
+                }
+                if(Character.toString(gameData.charAt(0)) == "Y" && matchColor() == "G")
+                {
+                    //GAME NEEDS YELLOW
+                    StopSpin();
+                }
+                if(Character.toString(gameData.charAt(0)) == "B" && matchColor() == "R")
+                {
+                    //GAME NEEDS BLUE
+                    StopSpin();
+                }
+                if(Character.toString(gameData.charAt(0)) == "G" && matchColor() == "Y")
+                {
+                    //GAME NEEDS GREEN
+                    StopSpin();
+                }
+                else
+                {
+                    spinner.set(spinSpeed);
+                }
+            }
+        }
+        if(!automatic)
+        {
+            spinner.set(spinSpeed);
+        }
     }
     
     public void StopSpin()
