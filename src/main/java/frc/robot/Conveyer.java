@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class Conveyer
 {
-
+    private TalonSRX firstTalon;
     private DigitalInput conveyerBottomLim;
     private DigitalInput conveyerStartLim;
     private DigitalInput conveyerEndLim;
