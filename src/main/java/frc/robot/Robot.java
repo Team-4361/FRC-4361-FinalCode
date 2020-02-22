@@ -114,8 +114,8 @@ public class Robot extends TimedRobot
     speedDivider = 1;
     DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
     DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
-    DriveSpark3 = new CANSparkMax(3, MotorType.kBrushless);
-    DriveSpark4 = new CANSparkMax(4, MotorType.kBrushless);
+    DriveSpark3 = new CANSparkMax(5, MotorType.kBrushless);
+    DriveSpark4 = new CANSparkMax(6, MotorType.kBrushless);
     DriveSparkEnc1 = new CANEncoder(DriveSpark1);
     DriveSparkEnc2 = new CANEncoder(DriveSpark2);
     DriveSparkEnc3 = new CANEncoder(DriveSpark3);
@@ -127,22 +127,22 @@ public class Robot extends TimedRobot
     theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
 
     //CONTROL PANEL
-    controlPanelSpark = new CANSparkMax(5, MotorType.kBrushless);
+    controlPanelSpark = new CANSparkMax(12, MotorType.kBrushless);
     i2cPort = I2C.Port.kOnboard;
     colorSens = new ColorSensorV3(i2cPort);
     theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
 
     //SHOOTER
-    shooterSpark1 = new CANSparkMax(6, MotorType.kBrushless);
+    shooterSpark1 = new CANSparkMax(3, MotorType.kBrushless);
     shooterSpark2 = new CANSparkMax(7, MotorType.kBrushless);
     shooterSparkEnc1 = new CANEncoder(shooterSpark1);
     shooterSparkEnc2 = new CANEncoder(shooterSpark2);  
     theShooter = new Shooter(shooterSpark1, shooterSpark2);
 
     //CLIMBER
-    ClimberSpark1 = new CANSparkMax(11, MotorType.kBrushless);
+    ClimberSpark1 = new CANSparkMax(4, MotorType.kBrushless);
     ClimberSpark1.setIdleMode(IdleMode.kBrake);
-    ClimberSpark2 = new CANSparkMax(12, MotorType.kBrushless);
+    ClimberSpark2 = new CANSparkMax(11, MotorType.kBrushless);
     ClimberSpark2.setIdleMode(IdleMode.kBrake);
     gripperTalon = new TalonSRX(13);
     climberBotLim = new DigitalInput(5);
