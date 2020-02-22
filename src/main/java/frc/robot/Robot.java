@@ -154,16 +154,16 @@ public class Robot extends TimedRobot
     intakeTalon1 = new TalonSRX(8);
     intakeTalon2 = new TalonSRX(14);
     intakeLim1 = new DigitalInput(0);
-    intakeLim2 = new DigitalInput(4);
+    intakeLim2 = new DigitalInput(1);
     theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
     intakeActuationTimer = new Timer();
     intakeActuationTimer.reset();
 
     //CONVEYER
     conveyerTalon1 = new TalonSRX(9);
-    conveyerBottom = new DigitalInput(1);
-    conveyerStart = new DigitalInput(2);
-    conveyerEnd = new DigitalInput(3);
+    conveyerBottom = new DigitalInput(2);
+    conveyerStart = new DigitalInput(3);
+    conveyerEnd = new DigitalInput(4);
     theConveyer = new Conveyer(conveyerTalon1, conveyerBottom, conveyerStart, conveyerEnd);
 
     //Sticks
@@ -245,13 +245,13 @@ public class Robot extends TimedRobot
   public void teleopPeriodic()
   {
       //Control Panel Code
-      if(cont1.getAButton())
+      if(cont1.getAButtonPressed())
       {
-        theControlPanel.Spin(1, true);
+        theControlPanel.SpinForRotations(1, true, 4);
       }
-      else
+      if(cont1.getBButton())
       {
-        theControlPanel.StopSpin();
+        theControlPanel.SpinForColor(1, true);
       }
       if(theControlPanel.matchColor() == "Blue")
       {
@@ -288,7 +288,7 @@ public class Robot extends TimedRobot
       SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
       
       //Shooter Code
-      if(cont1.getBButton())
+      if(cont1.getBumper(Hand.kLeft))
       {
         theShooter.Shoot(1);
         theConveyer.runConveyer(1, false);
@@ -297,12 +297,6 @@ public class Robot extends TimedRobot
       { 
         theShooter.StopShooting();
         theConveyer.stopConveyer();
-      }
-
-      //Conveyer Code
-      if(cont1.getBumper(Hand.kLeft))
-      {
-        theConveyer.runConveyer(1, false);
       }
 
       //Intake Code

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 
 import com.revrobotics.ColorMatchResult;
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 
@@ -21,6 +22,8 @@ public class ControlPanel
     private final Color kRedTarget;
     private final Color kYellowTarget;
     private String gameData;
+    int timesRun;
+    CANEncoder theEnc;
 
 
     public ControlPanel(CANSparkMax controlPanelSpark, ColorSensorV3 colorSens)
@@ -37,6 +40,8 @@ public class ControlPanel
         colorMatcher.addColorMatch(kRedTarget);
         colorMatcher.addColorMatch(kYellowTarget);
         gameData = DriverStation.getInstance().getGameSpecificMessage();
+        theEnc = new CANEncoder(spinner);
+        theEnc.setPosition(0);
     }
 
     public ControlPanel(CANSparkMax controlPanelSpark)
@@ -80,11 +85,11 @@ public class ControlPanel
         }
     }
 
-    /*Spins the control panel manipulator.
+    /*Spins the control panel manipulator to land on a specific color.
     spinSpeed = double between -1.0 and 1.0 (motor speed)
     automatic = boolean, true = with sensors, false = direct control.
     */
-    public void Spin(double spinSpeed, boolean automatic)
+    public void SpinForColor(double spinSpeed, boolean automatic)
     {
         if(automatic)
         {
@@ -114,6 +119,30 @@ public class ControlPanel
                 {
                     spinner.set(spinSpeed);
                 }
+            }
+        }
+        if(!automatic)
+        {
+            spinner.set(spinSpeed);
+        }
+    }
+
+    /*Spins the control panel manipulator for number of rotations.
+    spinSpeed = double between -1.0 and 1.0 (motor speed)
+    automatic = boolean, true = with sensors, false = direct control.
+    rotations = number between 3-5 for the number of required rotations.
+    */
+    public void SpinForRotations(double spinSpeed, boolean automatic, int rotations)
+    {
+        if(automatic)
+        {
+            if((32*Math.PI)/((4*Math.PI)*rotations) > theEnc.getPosition())
+            {
+                spinner.set(spinSpeed);
+            }
+            else if((32*Math.PI)/((4*Math.PI)*rotations) > theEnc.getPosition())
+            {
+                StopSpin();
             }
         }
         if(!automatic)
