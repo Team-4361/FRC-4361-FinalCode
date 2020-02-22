@@ -1,7 +1,6 @@
 package frc.robot;
 /*----------------------------------------------------------------------------*/
 
-
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
@@ -22,7 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.libraries.Autonomous.AutonomousMethods;
 import frc.libraries.Chassis.TankDrive;
-import frc.libraries.Controllers.Drive;
+import frc.libraries.Controllers.DriveSpark;
 import frc.libraries.Util.Counter;
 
 /**
@@ -54,8 +53,8 @@ public class Robot extends TimedRobot
   CANEncoder shooterSparkEnc1;
   CANEncoder shooterSparkEnc2;
   
-  Drive driveTrainL;
-  Drive driveTrainR;
+  DriveSpark driveTrainL;
+  DriveSpark driveTrainR;
   TankDrive theTank;
 
   Joystick lStick, rStick;
@@ -98,8 +97,6 @@ public class Robot extends TimedRobot
 
   boolean red, green, blue, yellow;
 
-  boolean shooterTest, climberTest, intakeTest, driveTest, conveyerTest, controlTest, basicMode, fullUse;
-
   DigitalInput conveyerBottom, conveyerStart, conveyerEnd;
 
   Timer intakeActuationTimer;
@@ -111,125 +108,72 @@ public class Robot extends TimedRobot
   @Override
   public void robotInit()
   {
-    shooterTest = false;
-    climberTest = false;
-    intakeTest = false;
-    driveTest = false;
-    conveyerTest = true;
-    controlTest = false;
-    fullUse = false;
-    basicMode = false;
 
     //DRIVE TRAIN
-    if(driveTest || fullUse)
-    {
-      ctrlmode = false;
-      speedDivider = 1;
-      DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
-      DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
-      DriveSpark3 = new CANSparkMax(3, MotorType.kBrushless);
-      DriveSpark4 = new CANSparkMax(4, MotorType.kBrushless);
-      DriveSparkEnc1 = new CANEncoder(DriveSpark1);
-      DriveSparkEnc2 = new CANEncoder(DriveSpark2);
-      DriveSparkEnc3 = new CANEncoder(DriveSpark3);
-      DriveSparkEnc4 = new CANEncoder(DriveSpark4);
-      CANSparkMax[] lDriveMotors = {DriveSpark1,DriveSpark2};
-      CANSparkMax[] rDriveMotors = {DriveSpark3,DriveSpark4};
-      driveTrainL = new Drive(lDriveMotors);
-      driveTrainR = new Drive(rDriveMotors);
-      theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
-    }
+    ctrlmode = false;
+    speedDivider = 1;
+    DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
+    DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
+    DriveSpark3 = new CANSparkMax(3, MotorType.kBrushless);
+    DriveSpark4 = new CANSparkMax(4, MotorType.kBrushless);
+    DriveSparkEnc1 = new CANEncoder(DriveSpark1);
+    DriveSparkEnc2 = new CANEncoder(DriveSpark2);
+    DriveSparkEnc3 = new CANEncoder(DriveSpark3);
+    DriveSparkEnc4 = new CANEncoder(DriveSpark4);
+    CANSparkMax[] lDriveMotors = {DriveSpark1,DriveSpark2};
+    CANSparkMax[] rDriveMotors = {DriveSpark3,DriveSpark4};
+    driveTrainL = new DriveSpark(lDriveMotors);
+    driveTrainR = new DriveSpark(rDriveMotors);
+    theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
+
     //CONTROL PANEL
-    if(controlTest || fullUse)
-    {
-      controlPanelSpark = new CANSparkMax(5, MotorType.kBrushless);
-      if(!basicMode)
-      {
-        i2cPort = I2C.Port.kOnboard;
-        colorSens = new ColorSensorV3(i2cPort);
-        theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
-      }
-      else
-      {
-        theControlPanel = new ControlPanel(controlPanelSpark);
-      }
-    }
+    controlPanelSpark = new CANSparkMax(5, MotorType.kBrushless);
+    i2cPort = I2C.Port.kOnboard;
+    colorSens = new ColorSensorV3(i2cPort);
+    theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
+
     //SHOOTER
-    if(shooterTest || fullUse)
-    {
-      shooterSpark1 = new CANSparkMax(6, MotorType.kBrushless);
-      shooterSpark2 = new CANSparkMax(7, MotorType.kBrushless);
-      shooterSparkEnc1 = new CANEncoder(shooterSpark1);
-      shooterSparkEnc2 = new CANEncoder(shooterSpark2);  
-      theShooter = new Shooter(shooterSpark1, shooterSpark2);
-    }
+    shooterSpark1 = new CANSparkMax(6, MotorType.kBrushless);
+    shooterSpark2 = new CANSparkMax(7, MotorType.kBrushless);
+    shooterSparkEnc1 = new CANEncoder(shooterSpark1);
+    shooterSparkEnc2 = new CANEncoder(shooterSpark2);  
+    theShooter = new Shooter(shooterSpark1, shooterSpark2);
+
     //CLIMBER
-    if(climberTest || fullUse)
-    {
-      ClimberSpark1 = new CANSparkMax(11, MotorType.kBrushless);
-      ClimberSpark1.setIdleMode(IdleMode.kBrake);
-      ClimberSpark2 = new CANSparkMax(12, MotorType.kBrushless);
-      ClimberSpark2.setIdleMode(IdleMode.kBrake);
-      gripperTalon = new TalonSRX(13);
-      if(!basicMode)
-      {
-        climberBotLim = new DigitalInput(5);
-        climberTopLim = new DigitalInput(6);
-        theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim);
-      }
-      else
-      {
-        theClimber = new Climber(ClimberSpark1, ClimberSpark2);
-      }
-      theGripper = new Gripper(gripperTalon);
-    }
+    ClimberSpark1 = new CANSparkMax(11, MotorType.kBrushless);
+    ClimberSpark1.setIdleMode(IdleMode.kBrake);
+    ClimberSpark2 = new CANSparkMax(12, MotorType.kBrushless);
+    ClimberSpark2.setIdleMode(IdleMode.kBrake);
+    gripperTalon = new TalonSRX(13);
+    climberBotLim = new DigitalInput(5);
+    climberTopLim = new DigitalInput(6);
+    theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim);
+    theGripper = new Gripper(gripperTalon);
+    
     //INTAKE
-    if(intakeTest || fullUse)
-    {
-      intakeTalon1 = new TalonSRX(8);
-      intakeTalon2 = new TalonSRX(14);
-      if(!basicMode)
-      {
-        intakeLim1 = new DigitalInput(0);
-        intakeLim2 = new DigitalInput(4);
-        theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
-      }
-      else
-      {
-        theIntake = new Intake(intakeTalon1, intakeTalon2);
-      }
+    intakeTalon1 = new TalonSRX(8);
+    intakeTalon2 = new TalonSRX(14);
+    intakeLim1 = new DigitalInput(0);
+    intakeLim2 = new DigitalInput(4);
+    theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
+    intakeActuationTimer = new Timer();
+    intakeActuationTimer.reset();
 
-      intakeActuationTimer = new Timer();
-      intakeActuationTimer.reset();
-
-    }
     //CONVEYER
-    if(conveyerTest || fullUse)
-    {
-      conveyerTalon1 = new TalonSRX(9);
-      if(!basicMode)
-      {
-        conveyerBottom = new DigitalInput(1);
-        conveyerStart = new DigitalInput(2);
-        conveyerEnd = new DigitalInput(3);
-        theConveyer = new Conveyer(conveyerTalon1, conveyerBottom, conveyerStart, conveyerEnd);
-      }
-      else
-      {
-        theConveyer = new Conveyer(conveyerTalon1);
-      }
-    }
+    conveyerTalon1 = new TalonSRX(9);
+    conveyerBottom = new DigitalInput(1);
+    conveyerStart = new DigitalInput(2);
+    conveyerEnd = new DigitalInput(3);
+    theConveyer = new Conveyer(conveyerTalon1, conveyerBottom, conveyerStart, conveyerEnd);
+
     //Sticks
     lStick = new Joystick(1);
     rStick = new Joystick(2);
     cont1 = new XboxController(0);
 
     RunNum = new Counter();
-    
-    if(theTank !=null && theIntake !=null && theShooter !=null && theConveyer !=null)
-    {
-      auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
-    }
+  
+    auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
 
     autoSendable = new SendableChooser<>();
     autoSendable.addOption("Don't Move", "Don't Move");
@@ -300,110 +244,77 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-    if(controlTest || fullUse)
-    {
       //Control Panel Code
       if(cont1.getAButton())
       {
-        if(!basicMode)
-        {
-          theControlPanel.Spin(1, true);
-        }
-        if(basicMode)
-        {
-          theControlPanel.Spin(1, false);
-        }
+        theControlPanel.Spin(1, true);
       }
       else
       {
         theControlPanel.StopSpin();
       }
-      if(!basicMode)
+      if(theControlPanel.matchColor() == "Blue")
       {
-        if(theControlPanel.matchColor() == "Blue")
-        {
-          red = false;
-          blue = true;
-          green = false;
-          yellow = false;
-        }
-        if(theControlPanel.matchColor() == "Red")
-        {
-          red = true;
-          blue = false;
-          green = false;
-          yellow = false;
-        }
-        if(theControlPanel.matchColor() == "Green")
-        {
-          red = false;
-          blue = false;
-          green = true;
-          yellow = false;
-        }
-        if(theControlPanel.matchColor() == "Yellow")
-        {
-          red = false;
-          blue = false;
-          green = false;
-          yellow = true;
-        }
-    
-        SmartDashboard.putBoolean("Color Sensor Blue", blue);
-        SmartDashboard.putBoolean("Color Sensor Red", red);
-        SmartDashboard.putBoolean("Color Sensor Green", green);
-        SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
+        red = false;
+        blue = true;
+        green = false;
+        yellow = false;
       }
-    }
-
-    if(shooterTest || fullUse)
-    {
+      if(theControlPanel.matchColor() == "Red")
+      {
+        red = true;
+        blue = false;
+        green = false;
+        yellow = false;
+      }
+      if(theControlPanel.matchColor() == "Green")
+      {
+        red = false;
+        blue = false;
+        green = true;
+        yellow = false;
+      }
+      if(theControlPanel.matchColor() == "Yellow")
+      {
+        red = false;
+        blue = false;
+        green = false;
+        yellow = true;
+      }
+  
+      SmartDashboard.putBoolean("Color Sensor Blue", blue);
+      SmartDashboard.putBoolean("Color Sensor Red", red);
+      SmartDashboard.putBoolean("Color Sensor Green", green);
+      SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
+      
       //Shooter Code
       if(cont1.getBButton())
       {
         theShooter.Shoot(1);
-        if(fullUse)
-        {
-          theConveyer.runConveyer(1, false);
-        }
+        theConveyer.runConveyer(1, false);
       }
       else
       { 
         theShooter.StopShooting();
-        if(fullUse)
-        {
-          theConveyer.stopConveyer();
-        }
+        theConveyer.stopConveyer();
       }
-    }
 
-    if(conveyerTest || fullUse)
-    {
       //Conveyer Code
       if(cont1.getBumper(Hand.kLeft))
       {
         theConveyer.runConveyer(1, false);
       }
-    }
 
-    if(intakeTest || fullUse)
-    {
       //Intake Code
       if(cont1.getBumper(Hand.kRight))
       {
         theIntake.startIntake(.5);
-        if(fullUse)
-        {
-          theConveyer.runConveyer(1, true);
-        }
+        theConveyer.runConveyer(1, true);
       }
       else
       {
         theIntake.stopIntake();
-        if(fullUse)
-        {
           theConveyer.stopConveyer();
-        }
       }
       if(cont1.getXButtonPressed())
       {
@@ -418,87 +329,60 @@ public class Robot extends TimedRobot
       else if(!intakeState)
       {
         theIntake.intakeActuateDown();
-      }  
+      }
+
+    //Climber / Gripper Code
+    if(cont1.getYButtonPressed())
+    {
+      climberState = !climberState;
+    }
+    if(climberState)
+    {
+      theClimber.climberUp(1, true);
+    }
+    if(!climberState)
+    {
+      theClimber.climberDown(1, true);
+    }
+    if(cont1.getPOV() == 0)
+    {
+      theGripper.MoveRight(1);
+    }
+    if(cont1.getPOV() == 180)
+    {
+      theGripper.MoveLeft(1);
     }
 
-    if(climberTest || fullUse)
+    //Drive Train Code
+    if(cont1.getRawButtonPressed(7))
     {
-      if(cont1.getYButtonPressed())
+      ctrlmode = !ctrlmode;
+    }
+    
+    if(cont1.getRawButtonPressed(5))
+    {
+      if(speedDivider > .25)
       {
-        climberState = !climberState;
+        speedDivider = speedDivider - .25;
       }
-      if(climberState)
+    }
+    else if(cont1.getRawButtonPressed(6))
+    {
+      if(speedDivider < 1)
       {
-        if(!basicMode)
-        {
-          theClimber.climberUp(1, true);
-        }
-        else
-        {
-          theClimber.climberUp(1, false);
-          if(cont1.getBumperPressed(Hand.kRight))
-          {
-            theClimber.stopClimber();
-          }
-        }
-      }
-      if(!climberState)
-      {
-        if(!basicMode)
-        {
-          theClimber.climberDown(1, true);
-        }
-        else
-        {
-          theClimber.climberDown(1, false);
-          if(cont1.getBumperPressed(Hand.kRight))
-          {
-            theClimber.stopClimber();
-          }
-        }
-      }
-      if(cont1.getPOV() == 0)
-      {
-        theGripper.MoveRight(1);
-      }
-      if(cont1.getPOV() == 180)
-      {
-        theGripper.MoveLeft(1);
+        speedDivider = speedDivider + .25;
       }
     }
 
-    if(driveTest || fullUse)
+    if(ctrlmode)
     {
-      if(cont1.getRawButtonPressed(7))
-      {
-        ctrlmode = !ctrlmode;
-      }
-      
-      if(cont1.getRawButtonPressed(5))
-      {
-        if(speedDivider > .25)
-        {
-          speedDivider = speedDivider - .25;
-        }
-      }
-      else if(cont1.getRawButtonPressed(6))
-      {
-        if(speedDivider < 1)
-        {
-          speedDivider = speedDivider + .25;
-        }
-      }
-  
-      if(ctrlmode)
-      {
-        theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
-        //System.out.println("ctrlMode Change Success to Sticks");
-      }
-      if(!ctrlmode)
-      {
-        theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
-        //System.out.println("ctrlMode Change Success to Controller");
-      }
+      theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
+      //System.out.println("ctrlMode Change Success to Sticks");
+    }
+    if(!ctrlmode)
+    {
+      theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
+      //System.out.println("ctrlMode Change Success to Controller");
     }
 
   }

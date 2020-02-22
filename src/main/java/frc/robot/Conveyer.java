@@ -31,39 +31,53 @@ public class Conveyer
         delayTimer.reset();
     }
 
+    /* Runs the Conveyer.
+    power = double between 0 and 1.0 (motor speed)
+    automatic = boolean, true = with sensors, false = direct control.
+    */
 	public void runConveyer(double power, boolean automatic)
     {
+        //If there are no balls at the end of the conveyer.
         if(conveyerEndLim.get())
         {
+            //If there is a ball at the intake and still no ball at the end of the conveyer. Mode MUST be automatic.
             if(!conveyerBottomLim.get() && conveyerEndLim.get() && automatic)
             {
-                firstTalon.set(ControlMode.PercentOutput, power);
+                firstTalon.set(ControlMode.PercentOutput, Math.abs(power));
             }
+            //If the ball is at the base of the conveyer.
             if(!conveyerStartLim.get())
             {
                 hasSeen = true;
             }
+            //If the ball is past the base of the conveyer.
+            //This stops the conveyer to keep the ball at the correct positon.
             if(hasSeen && conveyerStartLim.get())
             {
                     stopConveyer();
                     hasSeen = false;
             }
         }
+        //If a ball is at the end of the conveyer.
         else if(!conveyerEndLim.get())
         {
             stopConveyer();
         }
         if(!automatic)
         {
-            firstTalon.set(ControlMode.PercentOutput, power);
+            firstTalon.set(ControlMode.PercentOutput, Math.abs(power));
         }
     }
 
+    /* Runs the Conveyer Backwards
+    power = double between 0 and 1.0 (motor speed)
+    */
     public void reverseConveyer(double power)
     {
-        firstTalon.set(ControlMode.PercentOutput, -power);
+        firstTalon.set(ControlMode.PercentOutput, -Math.abs(power));
     }
     
+    //Stop Conveyer.
     public void stopConveyer()
     {
         firstTalon.set(ControlMode.PercentOutput, 0);

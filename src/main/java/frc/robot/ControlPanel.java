@@ -52,7 +52,9 @@ public class ControlPanel
         colorMatcher.addColorMatch(kRedTarget);
         colorMatcher.addColorMatch(kYellowTarget);
         gameData = DriverStation.getInstance().getGameSpecificMessage();
-	}
+    }
+    
+    //Collects the color that the Color Sensor sees. Returns value as a single character string.
 	public String matchColor()
     {
         ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
@@ -78,6 +80,10 @@ public class ControlPanel
         }
     }
 
+    /*Spins the control panel manipulator.
+    spinSpeed = double between -1.0 and 1.0 (motor speed)
+    automatic = boolean, true = with sensors, false = direct control.
+    */
     public void Spin(double spinSpeed, boolean automatic)
     {
         if(automatic)
@@ -116,6 +122,7 @@ public class ControlPanel
         }
     }
     
+    //Stops the spinner.
     public void StopSpin()
     {
         spinner.set(0);

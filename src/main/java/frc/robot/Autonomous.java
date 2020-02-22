@@ -54,9 +54,14 @@ public class Autonomous
         turnControl = new TurnControl();
     }
 
+    /*
+    Runs Autonomous
+    fromPos = Position that the robot is starting from, found on Shuffleboard.
+    */
     public void runAuto(String fromPos)
     {
         turnControl.ResetNavx();
+        //Edge of Opposing Trench
         if (fromPos == "Start 1")
         {
             RunNum.Reset();
@@ -119,10 +124,9 @@ public class Autonomous
             {
                 methods.turnNavx(90, .5);
             }
-
-
-
         }
+
+        //Loading Zone
         else if (fromPos == "Start 2")
         {
             RunNum.Reset();
@@ -186,6 +190,8 @@ public class Autonomous
                 methods.turnNavx(90, .5);
             }
         }
+
+        //Middle of Field
         else if (fromPos == "Start 3")
         {
             RunNum.Reset();
@@ -249,6 +255,7 @@ public class Autonomous
                 methods.turnNavx(90, .5);
             }
         }
+        //Edge of Shield Gen
         else if (fromPos == "Start 4")
         {
             RunNum.Reset();
@@ -312,6 +319,8 @@ public class Autonomous
                 methods.turnNavx(90, .5);
             }
         }
+
+        //Middle of Power Port
         else if (fromPos == "Start 5")
         {
             RunNum.Reset();
@@ -363,6 +372,8 @@ public class Autonomous
                 methods.turnNavx(90, .5);
             }
         }
+
+        //Middle of Friendly Trench
         else if (fromPos == "Start 6")
         {
             RunNum.Reset();
@@ -426,10 +437,12 @@ public class Autonomous
                 methods.turnNavx(90, .5);
             }
         }
+        //Don't Move. Don't do it.
         else if(fromPos == "Don't Move")
         {
             methods.goDistance(0, 1);
         }
+        //Move
         else
         {
             methods.goDistance(100, 1);

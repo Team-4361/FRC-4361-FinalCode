@@ -26,15 +26,21 @@ public class Intake
         this.actuationMotor1 = actuationMotor1;
     }
 
+    /*Starts intake
+    power = double -1.0 to 1.0 (motor speed)
+    */
 	public void startIntake(double power)
     {
         motor1.set(ControlMode.PercentOutput, power);
     }
+
+    //Stops intake.
     public void stopIntake()
     {
         motor1.set(ControlMode.PercentOutput, 0);
     }
 
+    //Actuates intake. (Moves intake into robot)
     public void intakeActuateUp()
     {
         if(topLim != null && botLim != null)
@@ -53,6 +59,8 @@ public class Intake
             actuationMotor1.set(ControlMode.PercentOutput, 1);
         }
     }
+
+    //Actuates Intake (Moves intake out of robot)
     public void intakeActuateDown()
     {
         if(topLim != null && botLim != null)
@@ -71,6 +79,8 @@ public class Intake
             actuationMotor1.set(ControlMode.PercentOutput, -1);
         }
     }
+    
+    //Stops the actuation of the robot.
     public void stopActuation()
     {
         actuationMotor1.set(ControlMode.PercentOutput, 0);
