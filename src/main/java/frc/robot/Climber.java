@@ -40,13 +40,13 @@ public class Climber
             else
             {
                 motor1.set(power);
-                motor2.set(-power);
+                motor2.set(power);
             }
         }
         if(!automatic)
         {
             motor1.set(power);
-            motor2.set(-power);
+            motor2.set(power);
         }
     }
 
@@ -65,13 +65,13 @@ public class Climber
             else
             {
                 motor1.set(-power);
-                motor2.set(power);
+                motor2.set(-power);
             }
         }
         if(!automatic)
         {
             motor1.set(-power);
-            motor2.set(power);
+            motor2.set(-power);
         }
     }
 

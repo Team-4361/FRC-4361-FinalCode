@@ -296,7 +296,10 @@ public class Robot extends TimedRobot
       else
       { 
         theShooter.StopShooting();
-        theConveyer.stopConveyer();
+        if(!cont1.getBumper(Hand.kRight))
+        {
+          theConveyer.stopConveyer();
+        }
       }
 
       //Intake Code
@@ -308,7 +311,10 @@ public class Robot extends TimedRobot
       else
       {
         theIntake.stopIntake();
+        if(!cont1.getBumper(Hand.kLeft))
+        {
           theConveyer.stopConveyer();
+        }
       }
       if(cont1.getXButtonPressed())
       {
