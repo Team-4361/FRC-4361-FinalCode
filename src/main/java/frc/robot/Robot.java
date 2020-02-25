@@ -4,12 +4,12 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
-import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -56,6 +56,8 @@ public class Robot extends TimedRobot
   DriveSpark driveTrainL;
   DriveSpark driveTrainR;
   TankDrive theTank;
+
+  double rampRate;
 
   Joystick lStick, rStick;
   
@@ -126,6 +128,14 @@ public class Robot extends TimedRobot
     driveTrainR = new DriveSpark(rDriveMotors);
     theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
 
+    //Ramp Rates (Acceleration Curves)
+    /*rampRate = 1.0; //This is the time, in seconds, that the Spark will take to go from 0 to full speed
+    DriveSpark1.setOpenLoopRampRate(rampRate);
+    DriveSpark2.setOpenLoopRampRate(rampRate);
+    DriveSpark3.setOpenLoopRampRate(rampRate);
+    DriveSpark4.setOpenLoopRampRate(rampRate);
+    */
+
     //CONTROL PANEL
     controlPanelSpark = new CANSparkMax(12, MotorType.kBrushless);
     i2cPort = I2C.Port.kOnboard;
@@ -151,8 +161,8 @@ public class Robot extends TimedRobot
     theGripper = new Gripper(gripperTalon);
     
     //INTAKE
-    intakeTalon1 = new TalonSRX(8);
-    intakeTalon2 = new TalonSRX(14);
+    intakeTalon1 = new TalonSRX(14);
+    intakeTalon2 = new TalonSRX(10);
     intakeLim1 = new DigitalInput(0);
     intakeLim2 = new DigitalInput(1);
     theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
@@ -185,6 +195,8 @@ public class Robot extends TimedRobot
     autoSendable.addOption("Middle of Friendly Trench", "Start 6");
 
     SmartDashboard.putData("Autonomous Chooser", autoSendable);
+
+    SmartDashboard.putNumber("Drive Speed Modifier", speedDivider);
 
     conveyerState = false;
     intakeState = false;
@@ -244,6 +256,8 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
+    
+    SmartDashboard.putNumber("Drive Speed Modifier", speedDivider);
       //Control Panel Code
       if(cont1.getAButtonPressed())
       {
@@ -290,27 +304,33 @@ public class Robot extends TimedRobot
       //Shooter Code
       if(cont1.getBumper(Hand.kLeft))
       {
-        theShooter.Shoot(1);
+        theShooter.Shoot(.69);
         theConveyer.runConveyer(1, false);
       }
       else
       { 
         theShooter.StopShooting();
-        theConveyer.stopConveyer();
+        if(!cont1.getBumper(Hand.kRight))
+        {
+          theConveyer.stopConveyer();
+        }
       }
 
       //Intake Code
       if(cont1.getBumper(Hand.kRight))
       {
-        theIntake.startIntake(.5);
+        theIntake.startIntake(.35);
         theConveyer.runConveyer(1, true);
       }
       else
       {
         theIntake.stopIntake();
+        if(!cont1.getBumper(Hand.kLeft))
+        {
           theConveyer.stopConveyer();
+        }
       }
-      if(cont1.getXButtonPressed())
+      /*if(cont1.getXButtonPressed())
       {
         intakeState = !intakeState;
       }
@@ -323,9 +343,10 @@ public class Robot extends TimedRobot
       else if(!intakeState)
       {
         theIntake.intakeActuateDown();
-      }
+      }*/
 
     //Climber / Gripper Code
+    /*
     if(cont1.getYButtonPressed())
     {
       climberState = !climberState;
@@ -338,6 +359,7 @@ public class Robot extends TimedRobot
     {
       theClimber.climberDown(1, true);
     }
+    */
     if(cont1.getPOV() == 0)
     {
       theGripper.MoveRight(1);
@@ -347,20 +369,34 @@ public class Robot extends TimedRobot
       theGripper.MoveLeft(1);
     }
 
+    
+    if(cont1.getBackButton())
+    {
+      theClimber.climberUp(1, false);
+    }
+    else if(cont1.getStartButton())
+    {
+      theClimber.climberDown(1, false);
+    }
+    else
+    {
+      theClimber.stopClimber();
+    }
+
     //Drive Train Code
-    if(cont1.getRawButtonPressed(7))
+    /*if(cont1.getRawButtonPressed(7))
     {
       ctrlmode = !ctrlmode;
-    }
+    }*/
     
-    if(cont1.getRawButtonPressed(5))
+    if(cont1.getStickButtonPressed(Hand.kLeft) || lStick.getRawButton(4) || rStick.getRawButton(3))
     {
       if(speedDivider > .25)
       {
         speedDivider = speedDivider - .25;
       }
     }
-    else if(cont1.getRawButtonPressed(6))
+    else if(cont1.getStickButtonPressed(Hand.kRight) || lStick.getRawButton(6) || rStick.getRawButton(5))
     {
       if(speedDivider < 1)
       {
@@ -370,13 +406,14 @@ public class Robot extends TimedRobot
 
     if(ctrlmode)
     {
-      theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
-      //System.out.println("ctrlMode Change Success to Sticks");
+        theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
+        //System.out.println("ctrlMode Change Success to Sticks");
     }
     if(!ctrlmode)
     {
-      theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
-      //System.out.println("ctrlMode Change Success to Controller");
+      //if(Math.abs(lStick.getY())>0.1) {
+        theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
+        //System.out.println("ctrlMode Change Success to Controller");
     }
 
   }

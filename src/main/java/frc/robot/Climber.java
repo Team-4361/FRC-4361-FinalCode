@@ -25,10 +25,6 @@ public class Climber
         this.climberTopLim = climberTopLim;
 	}
 
-    /*Moves the climber up.
-    power = double value between -1.0 and 1.0 (motor speed)
-    automatic = boolean, true = using sensors, false = direct control.
-    */
 	public void climberUp(double power, boolean automatic)
     {
         if(automatic)
@@ -39,21 +35,18 @@ public class Climber
             }
             else
             {
+                climberUp(power, false);
                 motor1.set(power);
-                motor2.set(-power);
+                motor2.set(power);
             }
         }
         if(!automatic)
         {
             motor1.set(power);
-            motor2.set(-power);
+            motor2.set(power);
         }
     }
 
-    /*Moves the climber down.
-    power = double value between -1.0 and 1.0 (motor speed)
-    automatic = boolean, true = using sensors, false = direct control.
-    */
     public void climberDown(double power, boolean automatic)
     {
         if(automatic)
@@ -64,18 +57,19 @@ public class Climber
             }
             else
             {
+                climberDown(power, false);
+
                 motor1.set(-power);
-                motor2.set(power);
+                motor2.set(-power);
             }
         }
         if(!automatic)
         {
             motor1.set(-power);
-            motor2.set(power);
+            motor2.set(-power);
         }
     }
 
-    //stops the climber.
     public void stopClimber()
     {
         motor1.set(0);

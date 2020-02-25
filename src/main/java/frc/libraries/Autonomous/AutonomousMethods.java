@@ -141,7 +141,6 @@ public class AutonomousMethods
 		else if(!hasRun&&angle==0)
 			hasRun=true;
 		
-			//TODO
 		//double large = Math.max(Math.abs(lEnc.get()), Math.abs(rEnc.get())) * 255;
 		
 		/*

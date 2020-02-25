@@ -15,13 +15,14 @@ public class Shooter
         this.motor2 = backwardMotor;
     }
 
-    /*Runs the shooter.
-    power = double between 0 and 1.0 (motor speed)
-    */
 	public void Shoot(double power)
     {
-        motor1.set(Math.abs(power));
-        motor2.set(-Math.abs(power));
+        motor1.set(power);
+        motor2.set(-power);
+        motor1.set(-power);
+        motor2.set(power);
+        motor1.set(-power);
+        motor2.set(power);
     }
     public void StopShooting()
     {

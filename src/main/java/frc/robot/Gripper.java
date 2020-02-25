@@ -12,23 +12,16 @@ public class Gripper
         motor1 = talon1;
     }
 
-    /*Gripper spins left.
-    amount = value between 0 and 1.0 (motor speed)
-    */
     public void MoveLeft(double amount)
     {
-        motor1.set(ControlMode.PercentOutput, Math.abs(amount));
+        motor1.set(ControlMode.PercentOutput, amount);
     }
 
-    /*Gripper spins right.
-    amount = value between 0 and 1.0 (motor speed)
-    */
     public void MoveRight(double amount)
     {
-        motor1.set(ControlMode.PercentOutput, -Math.abs(amount));
+        motor1.set(ControlMode.PercentOutput, -(amount));
     }
 
-    //Stops gripper.
     public void stopGripper()
     {
         motor1.set(ControlMode.PercentOutput, 0);
