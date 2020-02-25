@@ -59,7 +59,7 @@ public class Conveyer
                         hasSeen = false;
                 }
             }
-	}
+	    }
         else if(!conveyerEndLim.get())
         {
             stopConveyer();
