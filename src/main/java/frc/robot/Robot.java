@@ -58,6 +58,7 @@ public class Robot extends TimedRobot
   TankDrive theTank;
 
   double rampRate;
+  double deadzone;
 
   Joystick lStick, rStick;
   
@@ -134,7 +135,8 @@ public class Robot extends TimedRobot
     DriveSpark2.setOpenLoopRampRate(rampRate);
     DriveSpark3.setOpenLoopRampRate(rampRate);
     DriveSpark4.setOpenLoopRampRate(rampRate);
-    
+
+    deadzone = 0.08;    
 
     //CONTROL PANEL
     controlPanelSpark = new CANSparkMax(12, MotorType.kBrushless);
@@ -400,17 +402,33 @@ public class Robot extends TimedRobot
         speedDivider = speedDivider + .25;
       }
     }
+    double left = 0;
+    double right = 0;
 
     if(ctrlmode)
     {
-      theTank.drive(-(cont1.getY(Hand.kLeft))*speedDivider, (cont1.getY(Hand.kRight))*speedDivider);
+      //Deadzone if statement
+      left = cont1.getY(Hand.kLeft);
+      right = cont1.getY(Hand.kRight);
+      deadzone=0.0;
       //System.out.println("ctrlMode Change Success to Sticks");
     }
     if(!ctrlmode)
     {
-      theTank.drive(-(lStick.getY())*speedDivider, (rStick.getY())*speedDivider);
+      left = lStick.getY();
+      right = rStick.getY();
+      deadzone=0.08;    
       //System.out.println("ctrlMode Change Success to Controller");
     }
+    
+    //Deadzones
+    if(Math.abs(left)<deadzone)
+      left=0;
+    if(Math.abs(right)<deadzone)
+      right=0;
+
+    //Drive controls
+    theTank.drive(-left*speedDivider, right*speedDivider);
 
   }
 
