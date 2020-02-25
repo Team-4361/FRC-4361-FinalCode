@@ -136,13 +136,11 @@ public class ControlPanel
     {
         if(automatic)
         {
-            double distToSpin = (32*Math.PI)*rotations;
-            double distSpun = theEnc.getPosition()*((4*Math.PI)*4);
-            if(distToSpin > distSpun)
+            if((32*Math.PI)/((4*Math.PI)*rotations) > theEnc.getPosition())
             {
                 spinner.set(spinSpeed);
             }
-            else
+            else if((32*Math.PI)/((4*Math.PI)*rotations) > theEnc.getPosition())
             {
                 StopSpin();
             }

@@ -75,7 +75,6 @@ public class Climber
         }
     }
 
-    //stops the climber.
     public void stopClimber()
     {
         motor1.set(0);

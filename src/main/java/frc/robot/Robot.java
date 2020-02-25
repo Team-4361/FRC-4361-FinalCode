@@ -57,6 +57,8 @@ public class Robot extends TimedRobot
   DriveSpark driveTrainR;
   TankDrive theTank;
 
+  double rampRate;
+
   Joystick lStick, rStick;
   
   XboxController cont1;
@@ -125,6 +127,14 @@ public class Robot extends TimedRobot
     driveTrainL = new DriveSpark(lDriveMotors);
     driveTrainR = new DriveSpark(rDriveMotors);
     theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
+
+    //Ramp Rates (Acceleration Curves)
+    rampRate = 1.0; //This is the time, in seconds, that the Spark will take to go from 0 to full speed
+    DriveSpark1.setOpenLoopRampRate(rampRate);
+    DriveSpark2.setOpenLoopRampRate(rampRate);
+    DriveSpark3.setOpenLoopRampRate(rampRate);
+    DriveSpark4.setOpenLoopRampRate(rampRate);
+    
 
     //CONTROL PANEL
     controlPanelSpark = new CANSparkMax(12, MotorType.kBrushless);
@@ -244,92 +254,96 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-      //Control Panel Code
-      if(cont1.getAButtonPressed())
-      {
-        theControlPanel.SpinForRotations(1, true, 4);
-      }
-      if(cont1.getBButton())
-      {
-        theControlPanel.SpinForColor(1, true);
-      }
-      if(theControlPanel.matchColor() == "Blue")
-      {
-        red = false;
-        blue = true;
-        green = false;
-        yellow = false;
-      }
-      if(theControlPanel.matchColor() == "Red")
-      {
-        red = true;
-        blue = false;
-        green = false;
-        yellow = false;
-      }
-      if(theControlPanel.matchColor() == "Green")
-      {
-        red = false;
-        blue = false;
-        green = true;
-        yellow = false;
-      }
-      if(theControlPanel.matchColor() == "Yellow")
-      {
-        red = false;
-        blue = false;
-        green = false;
-        yellow = true;
-      }
-  
-      SmartDashboard.putBoolean("Color Sensor Blue", blue);
-      SmartDashboard.putBoolean("Color Sensor Red", red);
-      SmartDashboard.putBoolean("Color Sensor Green", green);
-      SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
-      
-      //Shooter Code
-      if(cont1.getBumper(Hand.kLeft))
-      {
-        theShooter.Shoot(1);
-        theConveyer.runConveyer(1, false);
-      }
-      else
-      { 
-        theShooter.StopShooting();
-        if(!cont1.getBumper(Hand.kRight))
-        {
-          theConveyer.stopConveyer();
-        }
-      }
+    SmartDashboard.putNumber("Drive Speed Modifier", speedDivider);
 
-      //Intake Code
-      if(cont1.getBumper(Hand.kRight))
+    //Control Panel Code
+    if(cont1.getAButtonPressed())
+    {
+      theControlPanel.SpinForRotations(1, true, 4);
+    }
+    if(cont1.getBButton())
+    {
+      theControlPanel.SpinForColor(1, true);
+    }
+    if(theControlPanel.matchColor() == "Blue")
+    {
+      red = false;
+      blue = true;
+      green = false;
+      yellow = false;
+    }
+    if(theControlPanel.matchColor() == "Red")
+    {
+      red = true;
+      blue = false;
+      green = false;
+      yellow = false;
+    }
+    if(theControlPanel.matchColor() == "Green")
+    {
+      red = false;
+      blue = false;
+      green = true;
+      yellow = false;
+    }
+    if(theControlPanel.matchColor() == "Yellow")
+    {
+      red = false;
+      blue = false;
+      green = false;
+      yellow = true;
+    }
+
+    SmartDashboard.putBoolean("Color Sensor Blue", blue);
+    SmartDashboard.putBoolean("Color Sensor Red", red);
+    SmartDashboard.putBoolean("Color Sensor Green", green);
+    SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
+    
+    //Shooter Code
+    if(cont1.getBumper(Hand.kLeft))
+    {
+      theShooter.Shoot(0.69);
+      theConveyer.runConveyer(1, false);
+    }
+    else
+    { 
+      theShooter.StopShooting();
+      theConveyer.stopConveyer();
+    }
+
+    //Intake Code
+    if(cont1.getBumper(Hand.kRight))
+    {
+      theIntake.startIntake(0.35);
+      theConveyer.runConveyer(1, true);
+    }
+    else
+    {
+      theIntake.stopIntake();
+      if(!cont1.getBumper(Hand.kLeft))
       {
-        theIntake.startIntake(.5);
-        theConveyer.runConveyer(1, true);
+        theConveyer.stopConveyer();
       }
-      else
-      {
-        theIntake.stopIntake();
-        if(!cont1.getBumper(Hand.kLeft))
-        {
-          theConveyer.stopConveyer();
-        }
-      }
-      if(cont1.getXButtonPressed())
-      {
-        intakeState = !intakeState;
-      }
-      if(intakeState)
-      {
-        
-        theIntake.intakeActuateUp();
-  
-      }
-      else if(!intakeState)
-      {
-        theIntake.intakeActuateDown();
-      }
+    }
+    if(cont1.getXButtonPressed())
+    {
+      intakeState = !intakeState;
+      intakeActuationTimer.start();
+    }
+    if(intakeState && intakeActuationTimer.get() < 3)
+    {
+      theIntake.intakeActuateUp();
+    }
+    else if(!intakeState && intakeActuationTimer.get() < 3)
+    {
+      theIntake.intakeActuateDown();
+    }
+    else if(intakeActuationTimer.get() > 3)
+    {
+      theIntake.stopActuation();
+      intakeActuationTimer.stop();
+      intakeActuationTimer.reset();
+    }
 
     //Climber / Gripper Code
     if(cont1.getYButtonPressed())
@@ -353,20 +367,33 @@ public class Robot extends TimedRobot
       theGripper.MoveLeft(1);
     }
 
+    if(cont1.getBackButton())
+    {
+      theClimber.climberUp(1, false);
+    }
+    else if(cont1.getStartButton())
+    {
+      theClimber.climberDown(1, false);
+    }
+    else
+    {
+      theClimber.stopClimber();
+    }
+
     //Drive Train Code
     if(cont1.getRawButtonPressed(7))
     {
       ctrlmode = !ctrlmode;
     }
     
-    if(cont1.getRawButtonPressed(5))
+    if(cont1.getRawButtonPressed(5) || lStick.getRawButton(4) || rStick.getRawButton(3))
     {
       if(speedDivider > .25)
       {
         speedDivider = speedDivider - .25;
       }
     }
-    else if(cont1.getRawButtonPressed(6))
+    else if(cont1.getRawButtonPressed(6) || lStick.getRawButton(6) || rStick.getRawButton(5))
     {
       if(speedDivider < 1)
       {

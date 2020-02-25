@@ -37,10 +37,8 @@ public class Conveyer
     */
 	public void runConveyer(double power, boolean automatic)
     {
-        //If there are no balls at the end of the conveyer.
         if(automatic)
         {
-                
             if(conveyerEndLim.get())
             {
                 //If there is a ball at the intake and still no ball at the end of the conveyer. Mode MUST be automatic.
@@ -61,8 +59,11 @@ public class Conveyer
                         hasSeen = false;
                 }
             }
+            else if(!conveyerEndLim.get())
+            {
+                stopConveyer();
+            }
         }
-        //If a ball is at the end of the conveyer.
         else if(!conveyerEndLim.get())
         {
             stopConveyer();
