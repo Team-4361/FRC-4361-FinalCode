@@ -145,6 +145,7 @@ public class Robot extends TimedRobot
 
     //CONTROL PANEL
     controlPanelSpark = new CANSparkMax(12, MotorType.kBrushless);
+    controlPanelSpark.setIdleMode(IdleMode.kBrake);
     i2cPort = I2C.Port.kOnboard;
     colorSens = new ColorSensorV3(i2cPort);
     theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
@@ -152,6 +153,8 @@ public class Robot extends TimedRobot
     //SHOOTER
     shooterSpark1 = new CANSparkMax(3, MotorType.kBrushless);
     shooterSpark2 = new CANSparkMax(7, MotorType.kBrushless);
+    shooterSpark1.setIdleMode(IdleMode.kCoast);
+    shooterSpark2.setIdleMode(IdleMode.kCoast);
     shooterSparkEnc1 = new CANEncoder(shooterSpark1);
     shooterSparkEnc2 = new CANEncoder(shooterSpark2);  
     theShooter = new Shooter(shooterSpark1, shooterSpark2);
@@ -194,6 +197,7 @@ public class Robot extends TimedRobot
   
     auto = new Autonomous(theTank, theIntake, theShooter, theConveyer);
 
+    //Auto options and SmartDashboard/Shuffleboard selector
     autoSendable = new SendableChooser<>();
     autoSendable.addOption("Don't Move", "Don't Move");
     autoSendable.addOption("Edge of Opposing Trench", "Start 1");
@@ -202,9 +206,15 @@ public class Robot extends TimedRobot
     autoSendable.addOption("Edge of Shield Gen", "Start 4");
     autoSendable.addOption("Middle of Power Port", "Start 5");
     autoSendable.addOption("Middle of Friendly Trench", "Start 6");
-
     SmartDashboard.putData("Autonomous Chooser", autoSendable);
 
+    //Color Sensor Value Idicators
+    SmartDashboard.putBoolean("Color Sensor Blue", blue);
+    SmartDashboard.putBoolean("Color Sensor Red", red);
+    SmartDashboard.putBoolean("Color Sensor Green", green);
+    SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
+
+    //Drive control values
     SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
     SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
     SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
