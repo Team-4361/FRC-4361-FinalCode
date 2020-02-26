@@ -61,6 +61,7 @@ public class Robot extends TimedRobot
 
   double rampRate;
   double deadzone;
+  boolean leftOut, rightOut;
 
   Joystick lStick, rStick;
   
@@ -117,8 +118,8 @@ public class Robot extends TimedRobot
   {
 
     //DRIVE TRAIN
-    ctrlmode = false;
-    speedDivider = 1;
+    ctrlmode = false; //False = Stick Tank, True = Xbox Tank
+    speedDivider = 1.0;
     DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
     DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
     DriveSpark3 = new CANSparkMax(5, MotorType.kBrushless);
@@ -204,6 +205,14 @@ public class Robot extends TimedRobot
 
     SmartDashboard.putData("Autonomous Chooser", autoSendable);
 
+    SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
+    SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
+    SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
+    if(!ctrlmode)
+      SmartDashboard.putString("Drive Control Mode", "Stick Tank");
+    else
+      SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
+
     conveyerState = false;
     intakeState = false;
     climberState = false;
@@ -263,7 +272,22 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-    SmartDashboard.putNumber("Drive Speed Modifier", speedDivider);
+    //Updating dynamic values to/from SmartDashboard/ShuffleBoard
+    if (SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider)>1.0) {
+      speedDivider=1.0;
+      SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", 1.0);
+    }
+    else {
+      speedDivider=(double)SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider);
+      SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
+    }
+    SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
+    SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
+    if(!ctrlmode)
+      SmartDashboard.putString("Drive Control Mode", "Stick Tank");
+    else
+      SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
+
 
     //Control Panel Code
     if(cont1.getAButtonPressed())
@@ -422,33 +446,45 @@ public class Robot extends TimedRobot
         speedDivider = speedDivider + .25;
       }
     }
-    double left = 0;
-    double right = 0;
+
+    double leftVal = 0;
+    leftOut = false;
+    double rightVal = 0;
+    rightOut = false;
 
     if(ctrlmode)
     {
       //Deadzone if statement
-      left = cont1.getY(Hand.kLeft);
-      right = cont1.getY(Hand.kRight);
+      leftVal = cont1.getY(Hand.kLeft);
+      rightVal = cont1.getY(Hand.kRight);
       deadzone=0.0;
       //System.out.println("ctrlMode Change Success to Sticks");
     }
     if(!ctrlmode)
     {
-      left = lStick.getY();
-      right = rStick.getY();
+      leftVal = lStick.getY();
+      rightVal = rStick.getY();
       deadzone=0.08;    
       //System.out.println("ctrlMode Change Success to Controller");
     }
     
     //Deadzones
-    if(Math.abs(left)<deadzone)
-      left=0;
-    if(Math.abs(right)<deadzone)
-      right=0;
+    //leftOut/rightOut tell if the sticks are outside the deadzone - Shown on ShuffleBoard for testing and tuning purposes
+    if(Math.abs(leftVal)<deadzone) {
+      leftVal=0; leftOut=false;
+    }
+    else {
+      leftOut=true;
+    }
+    if(Math.abs(rightVal)<deadzone) {
+      rightVal=0; rightOut=false;
+    }
+    else {
+      rightOut=true;
+    }
 
     //Drive controls
-    theTank.drive(-left*speedDivider, right*speedDivider);
+    theTank.drive(-leftVal*speedDivider, rightVal*speedDivider);
 
   }
 
