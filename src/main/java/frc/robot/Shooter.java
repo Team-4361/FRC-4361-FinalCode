@@ -20,8 +20,8 @@ public class Shooter
     */
 	public void Shoot(double power)
     {
-        motor1.set(Math.abs(power));
-        motor2.set(-Math.abs(power));
+        motor1.set(power);
+        motor2.set(-power);
     }
     public void StopShooting()
     {

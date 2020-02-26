@@ -1,5 +1,12 @@
 [
   {
+    "artifact": "frcJava (in project FRC-4361-FinalCode-2020)",
+    "target": "roborio",
+    "debugfile": "frcJava_roborio.debugconfig",
+    "project": "FRC-4361-FinalCode-2020",
+    "language": "java"
+  },
+  {
     "artifact": "frcJava (in project jordanNewTest)",
     "target": "roborio",
     "debugfile": "frcJava_roborio.debugconfig",

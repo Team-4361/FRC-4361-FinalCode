@@ -1,6 +1,8 @@
 package frc.robot;
 /*----------------------------------------------------------------------------*/
 
+import java.util.concurrent.TimeUnit;
+
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
@@ -102,7 +104,9 @@ public class Robot extends TimedRobot
 
   DigitalInput conveyerBottom, conveyerStart, conveyerEnd;
 
-  Timer intakeActuationTimer;
+  Timer intakeActuationTimer, shooterTimer;
+
+  boolean wait;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -163,13 +167,15 @@ public class Robot extends TimedRobot
     theGripper = new Gripper(gripperTalon);
     
     //INTAKE
-    intakeTalon1 = new TalonSRX(8);
-    intakeTalon2 = new TalonSRX(14);
+    intakeTalon1 = new TalonSRX(14);
+    intakeTalon2 = new TalonSRX(10);
     intakeLim1 = new DigitalInput(0);
     intakeLim2 = new DigitalInput(1);
     theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
     intakeActuationTimer = new Timer();
     intakeActuationTimer.reset();
+    shooterTimer = new Timer();
+    shooterTimer.reset();
 
     //CONVEYER
     conveyerTalon1 = new TalonSRX(9);
@@ -201,6 +207,7 @@ public class Robot extends TimedRobot
     conveyerState = false;
     intakeState = false;
     climberState = false;
+    wait = false;
 
   }
 
@@ -304,8 +311,19 @@ public class Robot extends TimedRobot
     //Shooter Code
     if(cont1.getBumper(Hand.kLeft))
     {
-      theShooter.Shoot(0.69);
-      theConveyer.runConveyer(1, false);
+      if(!wait)
+      {
+        shooterTimer.start();
+        wait = true;
+      }
+      theShooter.Shoot(1);
+      if(shooterTimer.get() > 1)
+      {
+        theConveyer.runConveyer(1, false);
+        shooterTimer.stop();
+        shooterTimer.reset();
+        wait = false;
+      }
     }
     else
     { 
@@ -316,7 +334,7 @@ public class Robot extends TimedRobot
     //Intake Code
     if(cont1.getBumper(Hand.kRight))
     {
-      theIntake.startIntake(0.35);
+      theIntake.startIntake(0.3);
       theConveyer.runConveyer(1, true);
     }
     else
@@ -327,6 +345,7 @@ public class Robot extends TimedRobot
         theConveyer.stopConveyer();
       }
     }
+    /*
     if(cont1.getXButtonPressed())
     {
       intakeState = !intakeState;
@@ -346,6 +365,7 @@ public class Robot extends TimedRobot
       intakeActuationTimer.stop();
       intakeActuationTimer.reset();
     }
+    */
 
     //Climber / Gripper Code
     if(cont1.getYButtonPressed())

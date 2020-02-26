@@ -49,6 +49,7 @@ public class Conveyer
                 //If the ball is at the base of the conveyer.
                 if(!conveyerStartLim.get())
                 {
+                    firstTalon.set(ControlMode.PercentOutput, Math.abs(power));
                     hasSeen = true;
                 }
                 //If the ball is past the base of the conveyer.
