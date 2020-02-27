@@ -218,10 +218,14 @@ public class Robot extends TimedRobot
     SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
     SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
     SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
-    if(!ctrlmode)
+    if(!ctrlmode) {
       SmartDashboard.putString("Drive Control Mode", "Stick Tank");
-    else
+    }
+    else {
       SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
+    }
+    SmartDashboard.putBoolean("Intake Top Lim Red=up", intakeLim1.get());
+    SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
 
     conveyerState = false;
     intakeState = false;
@@ -280,7 +284,7 @@ public class Robot extends TimedRobot
   }
 
   @Override
-  public void teleopPeriodic()
+  public void robotPeriodic()
   {
     //Updating dynamic values to/from SmartDashboard/ShuffleBoard
     if (SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider)>1.0) {
@@ -293,12 +297,19 @@ public class Robot extends TimedRobot
     }
     SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
     SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
-    if(!ctrlmode)
+    if(!ctrlmode) {
       SmartDashboard.putString("Drive Control Mode", "Stick Tank");
-    else
+    }
+    else {
       SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
+    }
+    SmartDashboard.putBoolean("Intake Top Lim Red=up", intakeLim1.get());
+    SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+  }
 
-
+  @Override
+  public void teleopPeriodic()
+  {
     //Control Panel Code
     if(cont1.getAButtonPressed())
     {
@@ -350,19 +361,20 @@ public class Robot extends TimedRobot
         shooterTimer.start();
         wait = true;
       }
-      theShooter.Shoot(1);
+      
+      theShooter.Shoot(0.80);
       if(shooterTimer.get() > 1)
       {
         theConveyer.runConveyer(1, false);
         shooterTimer.stop();
         shooterTimer.reset();
-        wait = false;
       }
     }
     else
     { 
       theShooter.StopShooting();
       theConveyer.stopConveyer();
+      wait = false;
     }
 
     //Intake Code
@@ -379,7 +391,7 @@ public class Robot extends TimedRobot
         theConveyer.stopConveyer();
       }
     }
-    /*
+    //Actuator
     if(cont1.getXButtonPressed())
     {
       intakeState = !intakeState;
@@ -399,7 +411,7 @@ public class Robot extends TimedRobot
       intakeActuationTimer.stop();
       intakeActuationTimer.reset();
     }
-    */
+    
 
     //Climber / Gripper Code
     if(cont1.getYButtonPressed())

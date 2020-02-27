@@ -65,11 +65,11 @@ public class Intake
     {
         if(topLim != null && botLim != null)
         {
-            if(!botLim.get())
+            if(botLim.get())
             {
                 actuationMotor1.set(ControlMode.PercentOutput, -1);
             }
-            else if(botLim.get())
+            else if(!botLim.get())
             {
                 actuationMotor1.set(ControlMode.PercentOutput, 0);
             }
