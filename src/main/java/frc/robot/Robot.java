@@ -224,7 +224,7 @@ public class Robot extends TimedRobot
     else {
       SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
     }
-    SmartDashboard.putBoolean("Intake Top Lim Red=up", intakeLim1.get());
+    SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
     SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
 
     conveyerState = false;
@@ -303,7 +303,7 @@ public class Robot extends TimedRobot
     else {
       SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
     }
-    SmartDashboard.putBoolean("Intake Top Lim Red=up", intakeLim1.get());
+    SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
     SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
   }
 
