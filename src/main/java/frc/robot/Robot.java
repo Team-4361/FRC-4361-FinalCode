@@ -1,7 +1,6 @@
 package frc.robot;
-/*----------------------------------------------------------------------------*/
 
-import java.util.concurrent.TimeUnit;
+/*----------------------------------------------------------------------------*/
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
@@ -35,7 +34,7 @@ import frc.libraries.Util.Counter;
  */
 public class Robot extends TimedRobot
 {
-  boolean ctrlmode;
+  boolean ctrlmode, arcadeMode;
   double speedDivider;
 
   CANSparkMax DriveSpark1;
@@ -119,6 +118,7 @@ public class Robot extends TimedRobot
 
     //DRIVE TRAIN
     ctrlmode = false; //False = Stick Tank, True = Xbox Tank
+    arcadeMode = false; //Changes Xbox to 2-Stick arcade when true
     speedDivider = 1.0;
     DriveSpark1 = new CANSparkMax(1, MotorType.kBrushless);
     DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
@@ -140,7 +140,7 @@ public class Robot extends TimedRobot
     DriveSpark2.setOpenLoopRampRate(rampRate);
     DriveSpark3.setOpenLoopRampRate(rampRate);
     DriveSpark4.setOpenLoopRampRate(rampRate);
-
+    //Deadzone value
     deadzone = 0.08;    
 
     //CONTROL PANEL
@@ -235,10 +235,36 @@ public class Robot extends TimedRobot
   }
 
   @Override
+  public void robotPeriodic()
+  {
+    //Updating dynamic values to/from SmartDashboard/ShuffleBoard
+    if (SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider)>1.0) {
+      speedDivider=1.0;
+      SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", 1.0);
+    }
+    else {
+      speedDivider=(double)SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider);
+      SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
+    }
+    SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
+    SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
+    if(!ctrlmode) {
+      SmartDashboard.putString("Drive Control Mode", "Stick Tank");
+    }
+    else {
+      SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
+    }
+    SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
+    SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+  }
+
+
+  @Override
   public void autonomousInit()
   {
     
   }
+
 
   @Override
   public void autonomousPeriodic()
@@ -277,35 +303,16 @@ public class Robot extends TimedRobot
     }
   }
 
-  @Override
-  public void teleopInit()
-  {
-    
-  }
 
   @Override
-  public void robotPeriodic()
-  {
-    //Updating dynamic values to/from SmartDashboard/ShuffleBoard
-    if (SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider)>1.0) {
-      speedDivider=1.0;
-      SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", 1.0);
-    }
-    else {
-      speedDivider=(double)SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider);
-      SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
-    }
-    SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
-    SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
-    if(!ctrlmode) {
-      SmartDashboard.putString("Drive Control Mode", "Stick Tank");
-    }
-    else {
-      SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
-    }
-    SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
-    SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+  public void teleopInit() {
   }
+
+
+  @Override
+  public void disabledPeriodic() {
+  }
+
 
   @Override
   public void teleopPeriodic()
@@ -477,8 +484,14 @@ public class Robot extends TimedRobot
     if(ctrlmode)
     {
       //Deadzone if statement
-      leftVal = cont1.getY(Hand.kLeft);
-      rightVal = cont1.getY(Hand.kRight);
+      if(!arcadeMode) {
+        leftVal = cont1.getY(Hand.kLeft);
+        rightVal = cont1.getY(Hand.kRight);
+      }
+      else if(arcadeMode) {
+        leftVal = cont1.getX(Hand.kRight) - cont1.getY(Hand.kLeft);
+        rightVal = cont1.getX(Hand.kRight) + cont1.getY(Hand.kLeft);
+      }
       deadzone=0.0;
       //System.out.println("ctrlMode Change Success to Sticks");
     }
@@ -509,15 +522,4 @@ public class Robot extends TimedRobot
     theTank.drive(-leftVal*speedDivider, rightVal*speedDivider);
 
   }
-
-  @Override
-  public void testInit()
-  {
-  }
-
-  @Override
-  public void testPeriodic()
-  {
-  }
-
 }
