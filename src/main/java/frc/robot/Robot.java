@@ -158,6 +158,8 @@ public class Robot extends TimedRobot
     shooterSparkEnc1 = new CANEncoder(shooterSpark1);
     shooterSparkEnc2 = new CANEncoder(shooterSpark2);  
     theShooter = new Shooter(shooterSpark1, shooterSpark2);
+    shooterTimer = new Timer();
+    shooterTimer.reset();
 
     //CLIMBER
     ClimberSpark1 = new CANSparkMax(4, MotorType.kBrushless);
@@ -178,8 +180,7 @@ public class Robot extends TimedRobot
     theIntake = new Intake(intakeTalon1, intakeTalon2, intakeLim1, intakeLim2);
     intakeActuationTimer = new Timer();
     intakeActuationTimer.reset();
-    shooterTimer = new Timer();
-    shooterTimer.reset();
+    
 
     //CONVEYER
     conveyerTalon1 = new TalonSRX(9);
@@ -256,6 +257,8 @@ public class Robot extends TimedRobot
     }
     SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
     SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+    SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
+    SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
   }
 
 
@@ -370,11 +373,13 @@ public class Robot extends TimedRobot
       }
       
       theShooter.Shoot(0.80);
-      if(shooterTimer.get() > 1)
+      if(shooterSparkEnc1.getVelocity() > 1918 && shooterSparkEnc2.getVelocity() > 1918)
       {
         theConveyer.runConveyer(1, false);
-        shooterTimer.stop();
-        shooterTimer.reset();
+      }
+      else if((shooterSparkEnc1.getVelocity() > 1726 || shooterSparkEnc2.getVelocity() > 1726) || (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918))
+      {
+        theConveyer.runConveyer(.5, false);
       }
     }
     else
@@ -421,7 +426,7 @@ public class Robot extends TimedRobot
     
 
     //Climber / Gripper Code
-    if(cont1.getYButtonPressed())
+    /*if(cont1.getYButtonPressed())
     {
       climberState = !climberState;
     }
@@ -440,19 +445,14 @@ public class Robot extends TimedRobot
     if(cont1.getPOV() == 180)
     {
       theGripper.MoveLeft(1);
-    }
-
-    if(cont1.getBackButton())
+    }*/
+    if(cont1.getStickButton(Hand.kLeft))
     {
       theClimber.climberUp(1, false);
     }
-    else if(cont1.getStartButton())
+    if(cont1.getStickButton(Hand.kRight))
     {
       theClimber.climberDown(1, false);
-    }
-    else
-    {
-      theClimber.stopClimber();
     }
 
     //Drive Train Code
