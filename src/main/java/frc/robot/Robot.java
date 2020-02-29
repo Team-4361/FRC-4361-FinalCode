@@ -75,7 +75,7 @@ public class Robot extends TimedRobot
 
   boolean conveyerState;
   boolean intakeState;
-  boolean climberState;
+  boolean climberState, climberOverride;
   
   TalonSRX intakeTalon1;
   TalonSRX intakeTalon2;
@@ -171,6 +171,7 @@ public class Robot extends TimedRobot
     climberTopLim = new DigitalInput(6);
     theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim);
     theGripper = new Gripper(gripperTalon);
+    climberOverride = false;
     
     //INTAKE
     intakeTalon1 = new TalonSRX(14);
@@ -227,6 +228,10 @@ public class Robot extends TimedRobot
     }
     SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
     SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+    SmartDashboard.putBoolean("Climber Top Lim", climberTopLim.get());
+    SmartDashboard.putBoolean("Climber Bot Lim", climberBotLim.get());
+    SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
+    SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
 
     conveyerState = false;
     intakeState = false;
@@ -257,6 +262,8 @@ public class Robot extends TimedRobot
     }
     SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
     SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+    SmartDashboard.putBoolean("Climber Top Lim", climberTopLim.get());
+    SmartDashboard.putBoolean("Climber Bot Lim", climberBotLim.get());
     SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
     SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
   }
@@ -428,7 +435,7 @@ public class Robot extends TimedRobot
     }
 
     //Climber / Gripper Code
-    /*if(cont1.getYButtonPressed())
+    if(cont1.getYButtonPressed())
     {
       climberState = !climberState;
     }
@@ -439,7 +446,7 @@ public class Robot extends TimedRobot
     if(!climberState)
     {
       theClimber.climberDown(1, true);
-    }*/
+    } 
     if(cont1.getPOV() == 90)
     {
       theGripper.MoveRight(1);
@@ -460,6 +467,10 @@ public class Robot extends TimedRobot
     {
       theClimber.stopClimber();
     }
+    //Climber Limit Bypass
+
+
+
 
     //Drive Train Code
 
