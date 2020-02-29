@@ -76,7 +76,7 @@ public class Conveyer
     */
     public void reverseConveyer(double power)
     {
-        firstTalon.set(ControlMode.PercentOutput, -Math.abs(power));
+        firstTalon.set(ControlMode.PercentOutput, -(Math.abs(power)));
     }
     
     //Stop Conveyer.

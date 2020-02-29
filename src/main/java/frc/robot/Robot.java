@@ -371,13 +371,12 @@ public class Robot extends TimedRobot
         shooterTimer.start();
         wait = true;
       }
-      
       theShooter.Shoot(0.80);
       if(shooterSparkEnc1.getVelocity() > 1918 && shooterSparkEnc2.getVelocity() > 1918)
       {
         theConveyer.runConveyer(1, false);
       }
-      else if((shooterSparkEnc1.getVelocity() > 1726 || shooterSparkEnc2.getVelocity() > 1726) || (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918))
+      else if((shooterSparkEnc1.getVelocity() > 1726 || shooterSparkEnc2.getVelocity() > 1726) && (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918))
       {
         theConveyer.runConveyer(.5, false);
       }
@@ -423,7 +422,10 @@ public class Robot extends TimedRobot
       intakeActuationTimer.stop();
       intakeActuationTimer.reset();
     }
-    
+    if(cont1.getStickButton(Hand.kRight))
+    {
+      theConveyer.reverseConveyer(1);
+    }
 
     //Climber / Gripper Code
     /*if(cont1.getYButtonPressed())
@@ -437,29 +439,31 @@ public class Robot extends TimedRobot
     if(!climberState)
     {
       theClimber.climberDown(1, true);
-    }
-    if(cont1.getPOV() == 0)
+    }*/
+    if(cont1.getPOV() == 90)
     {
       theGripper.MoveRight(1);
     }
-    if(cont1.getPOV() == 180)
+    if(cont1.getPOV() == 270)
     {
       theGripper.MoveLeft(1);
-    }*/
-    if(cont1.getStickButton(Hand.kLeft))
+    }
+    if(cont1.getPOV() == 0)
     {
       theClimber.climberUp(1, false);
     }
-    if(cont1.getStickButton(Hand.kRight))
+    if(cont1.getPOV() == 180)
     {
       theClimber.climberDown(1, false);
     }
-    if(!cont1.getStickButton(Hand.kRight) && !cont1.getStickButton(Hand.kLeft))
+    if(cont1.getPOV() == -1)
     {
       theClimber.stopClimber();
     }
 
     //Drive Train Code
+
+    //TO DELETE
     if(cont1.getRawButtonPressed(7))
     {
       ctrlmode = !ctrlmode;
