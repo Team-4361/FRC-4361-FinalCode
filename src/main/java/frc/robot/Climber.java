@@ -10,6 +10,7 @@ public class Climber
     private CANSparkMax motor2;
     private DigitalInput climberBotLim;
     private DigitalInput climberTopLim;
+    private boolean climberOverride;
 
     public Climber(CANSparkMax climberSpark1, CANSparkMax climberSpark2)
     {
@@ -23,6 +24,15 @@ public class Climber
         this.motor2 = climberSpark2;
         this.climberBotLim = climberBotLim;
         this.climberTopLim = climberTopLim;
+    }
+    
+    public Climber(CANSparkMax climberSpark1, CANSparkMax climberSpark2, DigitalInput climberBotLim, DigitalInput climberTopLim, boolean climberOverride)
+    {
+        this.motor1 = climberSpark1;
+        this.motor2 = climberSpark2;
+        this.climberBotLim = climberBotLim;
+        this.climberTopLim = climberTopLim;
+        this.climberOverride = climberOverride;
 	}
 
     /*Moves the climber up.
@@ -31,22 +41,52 @@ public class Climber
     */
 	public void climberUp(double power, boolean automatic)
     {
-        if(automatic)
+        if(!climberOverride)
         {
-            if(climberTopLim.get())
+            if(automatic)
             {
-                stopClimber();
+                if(climberTopLim.get())
+                {
+                    stopClimber();
+                }
+                else
+                {
+                    motor1.set(power);
+                    motor2.set(power);
+                }
             }
-            else
+            if(!automatic)
+            {
+                if(climberTopLim.get())
+                {
+                    stopClimber();
+                }
+                else
+                {
+                    motor1.set(power);
+                    motor2.set(power);
+                }
+            }
+        }
+        if(climberOverride)
+        {
+            if(automatic)
+            {
+                if(climberTopLim.get())
+                {
+                    stopClimber();
+                }
+                else
+                {
+                    motor1.set(power);
+                    motor2.set(power);
+                }
+            }
+            if(!automatic)
             {
                 motor1.set(power);
                 motor2.set(power);
             }
-        }
-        if(!automatic)
-        {
-            motor1.set(power);
-            motor2.set(power);
         }
     }
 
@@ -56,22 +96,52 @@ public class Climber
     */
     public void climberDown(double power, boolean automatic)
     {
-        if(automatic)
+        if(!climberOverride)
         {
-            if(climberBotLim.get())
+            if(automatic)
             {
-                stopClimber();
+                if(climberTopLim.get())
+                {
+                    stopClimber();
+                }
+                else
+                {
+                    motor1.set(-power);
+                    motor2.set(-power);
+                }
             }
-            else
+            if(!automatic)
+            {
+                if(climberTopLim.get())
+                {
+                    stopClimber();
+                }
+                else
+                {
+                    motor1.set(-power);
+                    motor2.set(-power);
+                }
+            }
+        }
+        if(climberOverride)
+        {
+            if(automatic)
+            {
+                if(climberTopLim.get())
+                {
+                    stopClimber();
+                }
+                else
+                {
+                    motor1.set(-power);
+                    motor2.set(-power);
+                }
+            }
+            if(!automatic)
             {
                 motor1.set(-power);
                 motor2.set(-power);
             }
-        }
-        if(!automatic)
-        {
-            motor1.set(-power);
-            motor2.set(-power);
         }
     }
 

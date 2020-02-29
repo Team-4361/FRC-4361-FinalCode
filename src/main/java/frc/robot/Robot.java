@@ -167,9 +167,9 @@ public class Robot extends TimedRobot
     ClimberSpark2 = new CANSparkMax(11, MotorType.kBrushless);
     ClimberSpark2.setIdleMode(IdleMode.kBrake);
     gripperTalon = new TalonSRX(13);
-    climberBotLim = new DigitalInput(5);
     climberTopLim = new DigitalInput(6);
-    theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim);
+    climberBotLim = new DigitalInput(5);
+    theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim, climberOverride);
     theGripper = new Gripper(gripperTalon);
     climberOverride = false;
     
@@ -228,8 +228,9 @@ public class Robot extends TimedRobot
     }
     SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
     SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
-    SmartDashboard.putBoolean("Climber Top Lim", climberTopLim.get());
-    SmartDashboard.putBoolean("Climber Bot Lim", climberBotLim.get());
+    SmartDashboard.putBoolean("Climber Top Lim Green=up", !climberTopLim.get());
+    SmartDashboard.putBoolean("Climber Bot Lim Red=down", !climberBotLim.get());
+    SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
     SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
     SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
 
@@ -262,8 +263,9 @@ public class Robot extends TimedRobot
     }
     SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
     SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
-    SmartDashboard.putBoolean("Climber Top Lim", climberTopLim.get());
-    SmartDashboard.putBoolean("Climber Bot Lim", climberBotLim.get());
+    SmartDashboard.putBoolean("Climber Top Lim Green=up", !climberTopLim.get());
+    SmartDashboard.putBoolean("Climber Bot Lim Red=down", !climberBotLim.get());
+    SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
     SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
     SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
   }
@@ -429,12 +431,22 @@ public class Robot extends TimedRobot
       intakeActuationTimer.stop();
       intakeActuationTimer.reset();
     }
-    if(cont1.getStickButton(Hand.kRight))
+    if(cont1.getStickButton(Hand.kLeft))
     {
       theConveyer.reverseConveyer(1);
     }
 
     //Climber / Gripper Code
+    //Climber Limit Bypass
+    if(cont1.getStickButton(Hand.kRight))
+    {
+      climberOverride = true;
+    }
+    else
+    {
+      climberOverride = false;
+    }
+    //Automatic
     if(cont1.getYButtonPressed())
     {
       climberState = !climberState;
@@ -446,7 +458,8 @@ public class Robot extends TimedRobot
     if(!climberState)
     {
       theClimber.climberDown(1, true);
-    } 
+    }
+    //Manual Climber Operation
     if(cont1.getPOV() == 90)
     {
       theGripper.MoveRight(1);
@@ -467,14 +480,13 @@ public class Robot extends TimedRobot
     {
       theClimber.stopClimber();
     }
-    //Climber Limit Bypass
 
 
 
 
     //Drive Train Code
 
-    //TO DELETE
+    //TO COMMENT
     if(cont1.getRawButtonPressed(7))
     {
       ctrlmode = !ctrlmode;

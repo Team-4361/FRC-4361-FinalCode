@@ -80,7 +80,11 @@ public class Autonomous
             else if(RunNum.Get() == 3)
             {
                 shooter.Shoot(1);
-                methods.wait(2.0);
+                methods.wait(1.0);
+                conveyer.runConveyer(1, false);
+                methods.wait(2.5);
+                shooter.StopShooting();
+                conveyer.stopConveyer();
             }
             else if(RunNum.Get() == 4)
             {
@@ -145,7 +149,11 @@ public class Autonomous
             else if(RunNum.Get() == 3)
             {
                 shooter.Shoot(1);
-                methods.wait(2.0);
+                methods.wait(1.0);
+                conveyer.runConveyer(1, false);
+                methods.wait(2.5);
+                shooter.StopShooting();
+                conveyer.stopConveyer();
             }
             else if(RunNum.Get() == 4)
             {
@@ -210,7 +218,11 @@ public class Autonomous
             else if(RunNum.Get() == 3)
             {
                 shooter.Shoot(1);
-                methods.wait(2.0);
+                methods.wait(1.0);
+                conveyer.runConveyer(1, false);
+                methods.wait(2.5);
+                shooter.StopShooting();
+                conveyer.stopConveyer();
             }
             else if(RunNum.Get() == 4)
             {
@@ -274,7 +286,11 @@ public class Autonomous
             else if(RunNum.Get() == 3)
             {
                 shooter.Shoot(1);
-                methods.wait(2.0);
+                methods.wait(1.0);
+                conveyer.runConveyer(1, false);
+                methods.wait(2.5);
+                shooter.StopShooting();
+                conveyer.stopConveyer();
             }
             else if(RunNum.Get() == 4)
             {
@@ -327,7 +343,11 @@ public class Autonomous
             if(RunNum.Get() == 0)
             {
                 shooter.Shoot(1);
-                methods.wait(2.0);
+                methods.wait(1.0);
+                conveyer.runConveyer(1, false);
+                methods.wait(2.5);
+                shooter.StopShooting();
+                conveyer.stopConveyer();
             }
             else if(RunNum.Get() == 1)
             {
@@ -392,7 +412,11 @@ public class Autonomous
             else if(RunNum.Get() == 3)
             {
                 shooter.Shoot(1);
-                methods.wait(2.0);
+                methods.wait(1.0);
+                conveyer.runConveyer(1, false);
+                methods.wait(2.5);
+                shooter.StopShooting();
+                conveyer.stopConveyer();
             }
             else if(RunNum.Get() == 4)
             {
