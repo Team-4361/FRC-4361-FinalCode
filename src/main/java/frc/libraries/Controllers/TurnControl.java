@@ -14,12 +14,12 @@ public class TurnControl //implements PIDOutput
 	private AHRS navx;
 	private PIDController turnController;
 	
-	static double kP = 0.00;
-	static double kI = 0.00;
-	static double kD = 0.00;
-	static double kF = 0.00;
-	static double kToleranceDegrees = 0;
-	static double kSpeed = 0;
+	double kP = 0.00;
+	double kI = 0.00;
+	double kD = 0.00;
+	double kF = 0.00;
+	double kToleranceDegrees = 0;
+	double kSpeed = 0;
 	
 	public TurnControl()
 	{
@@ -31,6 +31,30 @@ public class TurnControl //implements PIDOutput
 		kD = cons.GetDouble("kD");
 		kF = cons.GetDouble("kF");
 		kToleranceDegrees = cons.GetDouble("kToleranceDegrees");
+		
+		
+		try 
+		{
+			navx = new AHRS(SPI.Port.kMXP);
+		}
+		catch (RuntimeException ex )
+		{
+			DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
+		}
+		
+		turnController = new PIDController(kP, kI, kD);
+		//turnController.setInputRange(-180.0f,  180.0f);
+		//turnController.setOutputRange(-1.0, 1.0);
+		turnController.setTolerance(kToleranceDegrees);
+		//Enable();
+	}
+	public TurnControl(double kP, double kI, double kD, double kF, Float kToleranceDegrees)
+	{
+		this.kP = kP;
+		this.kI = kI;
+		this.kD = kD;
+		this.kF = kF;
+		this.kToleranceDegrees = kToleranceDegrees;
 		
 		
 		try 
@@ -87,7 +111,10 @@ public class TurnControl //implements PIDOutput
 	
 	public double GetRotateRate()
 	{
-		return kSpeed*(turnController.calculate(navx.getAngle()));
+		System.out.println("NavX Angle: " + navx.getAngle());
+		System.out.println("Calculate: " + turnController.calculate(navx.getAngle()));
+		System.out.println("Get Position Error: " + turnController.getPositionError());
+		return kSpeed*(turnController.getPositionError()/180);
 	}
 	
 	public boolean onTarget()

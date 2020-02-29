@@ -12,6 +12,7 @@ public class TankDrive implements Chassis
 	Encoder lEnc, rEnc;
 	CANEncoder lFrontEnc, rFrontEnc;
 	int WheelDiameter;
+	double EncoderGearRatio = 1;
 
 	public TankDrive(Drive Left, Drive Right) {
 		this.Left = Left;
@@ -33,6 +34,11 @@ public class TankDrive implements Chassis
 		this.rFrontEnc = rFrontEnc;
 		this.WheelDiameter = WheelDiameter;
 		
+	}
+
+	public void SetEncoderGearRatio(double ratio)
+	{
+		this.EncoderGearRatio = ratio;
 	}
 	
 	public void Forward(double value)
@@ -73,20 +79,23 @@ public class TankDrive implements Chassis
 	public void Turn(double value)
 	{
 		Left.drive(value);
-		Right.drive(-value);
+		Right.drive(value);
 	}
 	
 	public double GetDistance()
 	{
+		double distance = 0;
 		if(lEnc != null || rEnc != null)
 		{
-			return (Math.max(Math.abs(lEnc.getDistance()), Math.abs(rEnc.getDistance())) / 256) * WheelDiameter*Math.PI;
+			distance = (Math.max(Math.abs(lEnc.getDistance()), Math.abs(rEnc.getDistance())) / 256) * WheelDiameter*Math.PI;
 		}
 		else if(lFrontEnc != null || rFrontEnc != null)
 		{
-			return (Math.max(Math.abs(lFrontEnc.getPosition()), Math.abs(rFrontEnc.getPosition())) / 256) * WheelDiameter*Math.PI;
+			distance = (Math.max(Math.abs(lFrontEnc.getPosition()), Math.abs(rFrontEnc.getPosition())) / 42) * .36014927 * WheelDiameter*Math.PI;
 		}
-		return 0.0;
+		distance *= EncoderGearRatio;
+		System.out.println(distance);
+		return distance;
 		
 	}
 	

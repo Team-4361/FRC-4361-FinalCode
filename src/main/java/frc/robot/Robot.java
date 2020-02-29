@@ -7,6 +7,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.EncoderType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -124,15 +125,17 @@ public class Robot extends TimedRobot
     DriveSpark2 = new CANSparkMax(2, MotorType.kBrushless);
     DriveSpark3 = new CANSparkMax(5, MotorType.kBrushless);
     DriveSpark4 = new CANSparkMax(6, MotorType.kBrushless);
-    DriveSparkEnc1 = new CANEncoder(DriveSpark1);
-    DriveSparkEnc2 = new CANEncoder(DriveSpark2);
-    DriveSparkEnc3 = new CANEncoder(DriveSpark3);
-    DriveSparkEnc4 = new CANEncoder(DriveSpark4);
+    DriveSparkEnc1 = DriveSpark1.getEncoder(EncoderType.kHallSensor, 42);//new CANEncoder(DriveSpark1, EncoderType.kHallSensor, 42);
+    DriveSparkEnc2 = DriveSpark2.getEncoder(EncoderType.kHallSensor, 42);
+    DriveSparkEnc3 = DriveSpark3.getEncoder(EncoderType.kHallSensor, 42);
+    DriveSparkEnc4 = DriveSpark4.getEncoder(EncoderType.kHallSensor, 42);
     CANSparkMax[] lDriveMotors = {DriveSpark1,DriveSpark2};
     CANSparkMax[] rDriveMotors = {DriveSpark3,DriveSpark4};
     driveTrainL = new DriveSpark(lDriveMotors);
     driveTrainR = new DriveSpark(rDriveMotors);
     theTank = new TankDrive(driveTrainL, driveTrainR, DriveSparkEnc1, DriveSparkEnc2, 6);
+
+    theTank.SetEncoderGearRatio(10.75/1);
 
     //Ramp Rates (Acceleration Curves)
     rampRate = 1.0; //This is the time, in seconds, that the Spark will take to go from 0 to full speed
@@ -233,6 +236,8 @@ public class Robot extends TimedRobot
     SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
     SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
     SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
+    SmartDashboard.putNumber("Left Front Enc.", DriveSparkEnc1.getPosition());
+    SmartDashboard.putNumber("Right Front Enc.", DriveSparkEnc2.getPosition());
 
     conveyerState = false;
     intakeState = false;
@@ -268,13 +273,16 @@ public class Robot extends TimedRobot
     SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
     SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
     SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
+    SmartDashboard.putNumber("Left Front Enc.", DriveSparkEnc1.getPosition());
+    SmartDashboard.putNumber("Right Front Enc.", DriveSparkEnc2.getPosition());
+    SmartDashboard.putNumber("Distance", theTank.GetDistance());
   }
 
 
   @Override
   public void autonomousInit()
   {
-    
+    RunNum.Reset();
   }
 
 
@@ -317,7 +325,9 @@ public class Robot extends TimedRobot
 
 
   @Override
-  public void teleopInit() {
+  public void teleopInit()
+  {
+    theTank.ResetEncoders();
   }
 
 
@@ -385,8 +395,8 @@ public class Robot extends TimedRobot
       {
         theConveyer.runConveyer(1, false);
       }
-      else if((shooterSparkEnc1.getVelocity() > 1726 || shooterSparkEnc2.getVelocity() > 1726) && (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918))
-      {
+      else if((shooterSparkEnc1.getVelocity() > 1900 || shooterSparkEnc2.getVelocity() > 1900) && (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918))
+      { 
         theConveyer.runConveyer(.5, false);
       }
     }

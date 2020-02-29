@@ -14,7 +14,7 @@ public class AutonomousMethods
 	//Autonomous Variables
 	Counter RunNum;
 	boolean hasRun;
-	double circumference, robotWidth;
+	double circumference, robotWidth, chassisDiameter;
 	Timer timer;
 	
 	//Controls
@@ -25,7 +25,7 @@ public class AutonomousMethods
 	
 	public TurnControl turnControl;	
 	
-	public AutonomousMethods(Counter RunNum,  double circumference,  boolean isNavx,  Chassis chassis)
+	public AutonomousMethods(Counter RunNum,  double circumference,  boolean isNavx,  Chassis chassis, double chassisDiameter)
 	{
 		this.RunNum = RunNum;
 		hasRun = false;
@@ -35,6 +35,8 @@ public class AutonomousMethods
 		this.chassis = chassis;
 		
 		this.isNavx = isNavx;
+
+		this.chassisDiameter = chassisDiameter;
 		
 		if(isNavx)
 		{
@@ -74,7 +76,7 @@ public class AutonomousMethods
 			
 			chassis.Straight(speed);
 			
-			if(large * circumference > dist || timer.get() - 7 > timeNeeded)
+			if(large > dist)// || timer.get() - 7 > timeNeeded)
 			{
 				System.out.println("Stop");
 				
@@ -142,20 +144,18 @@ public class AutonomousMethods
 			hasRun=true;
 		
 			//TODO
-		//double large = Math.max(Math.abs(lEnc.get()), Math.abs(rEnc.get())) * 255;
-		
-		/*
-		if(large*circumference >= (19.5*Math.PI)*percent)
+		double distance = chassis.GetDistance();
+		System.out.println(chassis.GetDistance());
+		if(Math.abs(distance) >= (chassisDiameter*Math.PI)*percent)
 		{
 			chassis.Stop();
 			
 			hasRun = false;
-			RunNum++;
+			RunNum.Add();
 		}
-		*/
 	}
 
-	public void turnNavx( double angle,  double MaxSpeed)
+	public void turnNavx(double angle,  double MaxSpeed)
 	{
 		if(!hasRun)
 		{
@@ -166,6 +166,7 @@ public class AutonomousMethods
 		}
 	  
 		 double RotateRate = turnControl.GetRotateRate();
+		 System.out.println("Rotate Rate: " + RotateRate);
 		chassis.Turn(RotateRate);
 		
 		if(turnControl.onTarget())
