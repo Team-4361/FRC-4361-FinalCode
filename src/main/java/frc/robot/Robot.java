@@ -409,15 +409,15 @@ public class Robot extends TimedRobot
       intakeState = !intakeState;
       intakeActuationTimer.start();
     }
-    if(intakeState && intakeActuationTimer.get() < 3)
+    if(intakeState && intakeActuationTimer.get() < 1.2)
     {
       theIntake.intakeActuateUp();
     }
-    else if(!intakeState && intakeActuationTimer.get() < 3)
+    else if(!intakeState && intakeActuationTimer.get() < 1.2)
     {
       theIntake.intakeActuateDown();
     }
-    else if(intakeActuationTimer.get() > 3)
+    else if(intakeActuationTimer.get() > 1.2)
     {
       theIntake.stopActuation();
       intakeActuationTimer.stop();
@@ -453,6 +453,10 @@ public class Robot extends TimedRobot
     if(cont1.getStickButton(Hand.kRight))
     {
       theClimber.climberDown(1, false);
+    }
+    if(!cont1.getStickButton(Hand.kRight) && !cont1.getStickButton(Hand.kLeft))
+    {
+      theClimber.stopClimber();
     }
 
     //Drive Train Code
