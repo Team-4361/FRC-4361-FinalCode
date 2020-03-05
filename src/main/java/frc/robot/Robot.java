@@ -6,7 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ColorSensorV3;
+//import com.revrobotics.ColorSensorV3;
 import com.revrobotics.EncoderType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -86,12 +86,12 @@ public class Robot extends TimedRobot
   
   Shooter theShooter;
   Intake theIntake;
-  ControlPanel theControlPanel;
   Climber theClimber;
+  //ControlPanel theControlPanel;
   Gripper theGripper;
   
-  ColorSensorV3 colorSens;
-  I2C.Port i2cPort;
+  //ColorSensorV3 colorSens;
+  //I2C.Port i2cPort;
   
   Timer AutoTimer;
   Conveyer theConveyer;
@@ -102,6 +102,8 @@ public class Robot extends TimedRobot
   DigitalInput intakeLim1, intakeLim2, climberBotLim, climberTopLim;
 
   boolean red, green, blue, yellow;
+
+  String intakeSpot;
 
   DigitalInput conveyerBottom, conveyerStart, conveyerEnd;
 
@@ -144,14 +146,14 @@ public class Robot extends TimedRobot
     DriveSpark3.setOpenLoopRampRate(rampRate);
     DriveSpark4.setOpenLoopRampRate(rampRate);
     //Deadzone value
-    deadzone = 0.08;    
+    deadzone = 0.06;    
 
     //CONTROL PANEL
-    controlPanelSpark = new CANSparkMax(12, MotorType.kBrushless);
-    controlPanelSpark.setIdleMode(IdleMode.kBrake);
-    i2cPort = I2C.Port.kOnboard;
-    colorSens = new ColorSensorV3(i2cPort);
-    theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
+    //controlPanelSpark = new CANSparkMax(12, MotorType.kBrushless);
+    //controlPanelSpark.setIdleMode(IdleMode.kBrake);
+    //i2cPort = I2C.Port.kOnboard;
+    //colorSens = new ColorSensorV3(i2cPort);
+    //theControlPanel = new ControlPanel(controlPanelSpark, colorSens);
 
     //SHOOTER
     shooterSpark1 = new CANSparkMax(3, MotorType.kBrushless);
@@ -172,7 +174,7 @@ public class Robot extends TimedRobot
     gripperTalon = new TalonSRX(13);
     climberTopLim = new DigitalInput(6);
     climberBotLim = new DigitalInput(5);
-    theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim, climberOverride);
+    theClimber = new Climber(ClimberSpark1, ClimberSpark2, climberBotLim, climberTopLim);
     theGripper = new Gripper(gripperTalon);
     climberOverride = false;
     
@@ -204,45 +206,48 @@ public class Robot extends TimedRobot
 
     //Auto options and SmartDashboard/Shuffleboard selector
     autoSendable = new SendableChooser<>();
-    autoSendable.addOption("Don't Move", "Don't Move");
+    /*autoSendable.addOption("Don't Move", "Don't Move");
     autoSendable.addOption("Edge of Opposing Trench", "Start 1");
     autoSendable.addOption("Loading Zone", "Start 2");
     autoSendable.addOption("Middle of Field", "Start 3");
     autoSendable.addOption("Edge of Shield Gen", "Start 4");
     autoSendable.addOption("Middle of Power Port", "Start 5");
-    autoSendable.addOption("Middle of Friendly Trench", "Start 6");
+    autoSendable.addOption("Middle of Friendly Trench", "Start 6");*/
+    autoSendable.addOption("Basic Mode", "Basic");
     SmartDashboard.putData("Autonomous Chooser", autoSendable);
 
     //Color Sensor Value Idicators
-    SmartDashboard.putBoolean("Color Sensor Blue", blue);
-    SmartDashboard.putBoolean("Color Sensor Red", red);
-    SmartDashboard.putBoolean("Color Sensor Green", green);
-    SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
+    //SmartDashboard.putBoolean("Color Sensor Blue", blue);
+    //SmartDashboard.putBoolean("Color Sensor Red", red);
+    //SmartDashboard.putBoolean("Color Sensor Green", green);
+    //SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
 
     //Drive control values
     SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
-    SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
-    SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
+    SmartDashboard.putBoolean("L Stick deadzone", leftOut);
+    SmartDashboard.putBoolean("R Stick deadzone", rightOut);
     if(!ctrlmode) {
       SmartDashboard.putString("Drive Control Mode", "Stick Tank");
     }
     else {
       SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
     }
-    SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
-    SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+    //SmartDashboard.putString("Intake State", intakeSpot);
+    SmartDashboard.putString("Intake Spot", "");
     SmartDashboard.putBoolean("Climber Top Lim Green=up", !climberTopLim.get());
-    SmartDashboard.putBoolean("Climber Bot Lim Red=down", !climberBotLim.get());
-    SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
+    SmartDashboard.putBoolean("Climber Bot Lim Red=down", climberBotLim.get());
+    //SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
     SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
     SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
-    SmartDashboard.putNumber("Left Front Enc.", DriveSparkEnc1.getPosition());
-    SmartDashboard.putNumber("Right Front Enc.", DriveSparkEnc2.getPosition());
+    //SmartDashboard.putNumber("Left Front Enc.", DriveSparkEnc1.getPosition());
+    //SmartDashboard.putNumber("Right Front Enc.", DriveSparkEnc2.getPosition());
+    //SmartDashboard.putBoolean("Climber State", climberState);
 
     conveyerState = false;
     intakeState = false;
     climberState = false;
     wait = false;
+    intakeSpot = "";
 
   }
 
@@ -258,24 +263,35 @@ public class Robot extends TimedRobot
       speedDivider=(double)SmartDashboard.getNumber("Drive Speed Modifier (default=1.0)", speedDivider);
       SmartDashboard.putNumber("Drive Speed Modifier (default=1.0)", speedDivider);
     }
-    SmartDashboard.putBoolean("L Stick > deadzone", leftOut);
-    SmartDashboard.putBoolean("R Stick > deadzone", rightOut);
+    SmartDashboard.putBoolean("L Stick deadzone", leftOut);
+    SmartDashboard.putBoolean("R Stick deadzone", rightOut);
     if(!ctrlmode) {
       SmartDashboard.putString("Drive Control Mode", "Stick Tank");
     }
     else {
       SmartDashboard.putString("Drive Control Mode", "Xbox Tank");
     }
-    SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
-    SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+    //SmartDashboard.putBoolean("Intake Top Lim Green=up", intakeLim1.get());
+    //SmartDashboard.putBoolean("Intake Bot Lim Red=down", intakeLim2.get());
+    
+    if(intakeLim1.get())
+    {
+      SmartDashboard.putString("Intake Spot", "Up");
+    }
+    if(!intakeLim2.get())
+    {
+      SmartDashboard.putString("Intake Spot", "Down");
+    }
+    
     SmartDashboard.putBoolean("Climber Top Lim Green=up", !climberTopLim.get());
-    SmartDashboard.putBoolean("Climber Bot Lim Red=down", !climberBotLim.get());
-    SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
+    SmartDashboard.putBoolean("Climber Bot Lim Red=down", climberBotLim.get());
+    //SmartDashboard.putBoolean("Climber Limit Bypass", climberOverride);
     SmartDashboard.putNumber("Left Shooter Spd.", shooterSparkEnc1.getVelocity());
     SmartDashboard.putNumber("Right Shooter Spd.", shooterSparkEnc2.getVelocity());
-    SmartDashboard.putNumber("Left Front Enc.", DriveSparkEnc1.getPosition());
-    SmartDashboard.putNumber("Right Front Enc.", DriveSparkEnc2.getPosition());
-    SmartDashboard.putNumber("Distance", theTank.GetDistance());
+    //SmartDashboard.putNumber("Left Front Enc.", DriveSparkEnc1.getPosition());
+    //SmartDashboard.putNumber("Right Front Enc.", DriveSparkEnc2.getPosition());
+    //SmartDashboard.putNumber("Distance", theTank.GetDistance());
+    //SmartDashboard.putBoolean("Climber State", climberState);
   }
 
 
@@ -292,6 +308,11 @@ public class Robot extends TimedRobot
     if(autoSendable.getSelected() == "Don't Move" || autoSendable.getSelected() ==  "Don't Move")
     {
       auto.runAuto("Don't Move");
+    }
+    else if(autoSendable.getSelected() == "Basic Mode" || autoSendable.getSelected() ==  "Basic")
+    {
+      System.out.println("Basic Mode ez");
+      auto.runAuto("Basic");
     }
     else if(autoSendable.getSelected() == "Edge of Opposing Trench" || autoSendable.getSelected() ==  "Start 1")
     {
@@ -340,7 +361,7 @@ public class Robot extends TimedRobot
   public void teleopPeriodic()
   {
     //Control Panel Code
-    if(cont1.getAButtonPressed())
+    /*if(cont1.getAButtonPressed())
     {
       theControlPanel.SpinForRotations(1, true, 4);
     }
@@ -380,8 +401,9 @@ public class Robot extends TimedRobot
     SmartDashboard.putBoolean("Color Sensor Blue", blue);
     SmartDashboard.putBoolean("Color Sensor Red", red);
     SmartDashboard.putBoolean("Color Sensor Green", green);
-    SmartDashboard.putBoolean("Color Sensor Yellow", yellow);
-    
+    SmartDashboard.putBoolean("Color Sensor Yellow", yellow);*/
+
+
     //Shooter Code
     if(cont1.getBumper(Hand.kLeft))
     {
@@ -397,7 +419,7 @@ public class Robot extends TimedRobot
       }
       else if((shooterSparkEnc1.getVelocity() > 1900 || shooterSparkEnc2.getVelocity() > 1900) && (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918))
       { 
-        theConveyer.runConveyer(.5, false);
+        theConveyer.runConveyer(.3, false);
       }
     }
     else
@@ -461,34 +483,35 @@ public class Robot extends TimedRobot
     {
       climberState = !climberState;
     }
-    if(climberState)
+    if(!climberState && !climberOverride)
     {
       theClimber.climberUp(1, true);
     }
-    if(!climberState)
+    if(climberState && !climberOverride)
     {
       theClimber.climberDown(1, true);
     }
     //Manual Climber Operation
-    if(cont1.getPOV() == 90)
+    if(cont1.getPOV() == 90 && climberOverride)
     {
       theGripper.MoveRight(1);
     }
-    if(cont1.getPOV() == 270)
+    if(cont1.getPOV() == 270 && climberOverride)
     {
       theGripper.MoveLeft(1);
     }
-    if(cont1.getPOV() == 0)
+    if(cont1.getPOV() == 0 && climberOverride)
     {
       theClimber.climberUp(1, false);
     }
-    if(cont1.getPOV() == 180)
+    if(cont1.getPOV() == 180 && climberOverride)
     {
       theClimber.climberDown(1, false);
     }
-    if(cont1.getPOV() == -1)
+    if(cont1.getPOV() == -1 && climberOverride)
     {
       theClimber.stopClimber();
+      theGripper.stopGripper();
     }
 
 

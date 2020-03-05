@@ -62,7 +62,7 @@ public class Autonomous
     public void runAuto(String fromPos)
     {
         //Edge of Opposing Trench
-        if (fromPos == "Start 1")
+        /*if (fromPos == "Start 1")
         {
             if(RunNum.Get() == 0)
             {
@@ -214,7 +214,6 @@ public class Autonomous
         //Middle of Field
         else if (fromPos == "Start 3")
         {
-            RunNum.Reset();
             if(RunNum.Get() == 0)
             {
                 methods.turnNavx(90, .5);
@@ -351,7 +350,7 @@ public class Autonomous
         else if (fromPos == "Start 5")
         {
             
-            /*if(RunNum.Get() == 0)
+            if(RunNum.Get() == 0)
             {
                 shooter.Shoot(1);
                 methods.wait(1.0);
@@ -369,15 +368,15 @@ public class Autonomous
             }
             else if(RunNum.Get() == 3)
             {
-                methods.turnEncoder(90, .25);
+                methods.turnNavx(90, .25);
             }
             else if(RunNum.Get() == 4)
             {
-                methods.goDistance(fromPortToTrench, 1);
+                methods.goDistance(-fromPortToTrench, .5);
             }
             else if(RunNum.Get() == 5)
             {
-                methods.turnEncoder(90, .25);
+                methods.turnNavx(90, .25);
             }
             else if(RunNum.Get() == 6)
             {
@@ -388,7 +387,7 @@ public class Autonomous
             }
             else if(RunNum.Get() == 7)
             {
-                methods.turnEncoder(180, .25);
+                methods.turnNavx(180, .25);
             }
             else if(RunNum.Get() == 8)
             {
@@ -399,7 +398,7 @@ public class Autonomous
             }
             else if(RunNum.Get() == 9)
             {
-                methods.turnEncoder(-90, .25);
+                methods.turnNavx(-90, .25);
             }
             else if(RunNum.Get() == 10)
             {
@@ -407,11 +406,7 @@ public class Autonomous
             }
             else if(RunNum.Get() == 11)
             {
-                methods.turnEncoder(90, .25);
-            }*/
-            if(RunNum.Get() == 0)
-            {
-                methods.goDistance(120, .25);
+                methods.turnNavx(90, .25);
             }
         }
 
@@ -479,7 +474,7 @@ public class Autonomous
             }
             else if(RunNum.Get() == 12)
             {
-                methods.turnNavx(90, .5);
+                methods.turnNavx(90, .75);
             }
         }
         //Don't Move. Don't do it.
@@ -487,10 +482,34 @@ public class Autonomous
         {
             methods.goDistance(0, 1);
         }
-        //Move
-        else
+        //Move*/
+        if(fromPos == "Basic")
         {
-            methods.goDistance(100, 1);
+            if(RunNum.Get() == 0)
+            {
+                shooter.Shoot(1);
+                methods.wait(1.0);
+            }
+            else if(RunNum.Get() == 1)
+            {
+                conveyer.runConveyer(1, false);
+                methods.wait(2.5);
+            }
+            else if(RunNum.Get() == 2)
+            {
+                shooter.StopShooting();
+                conveyer.stopConveyer();
+                methods.wait(1.0);
+            }
+            else if(RunNum.Get() == 3)
+            {
+                chassis.drive(.25, -.25);
+                methods.wait(.5);
+            }
+            else if(RunNum.Get() == 4)
+            {
+                chassis.drive(0, 0);
+            }
         }
     }
     

@@ -20,6 +20,8 @@ public class TurnControl //implements PIDOutput
 	double kF = 0.00;
 	double kToleranceDegrees = 0;
 	double kSpeed = 0;
+
+	double angle;
 	
 	public TurnControl()
 	{
@@ -67,8 +69,7 @@ public class TurnControl //implements PIDOutput
 		}
 		
 		turnController = new PIDController(kP, kI, kD);
-		//turnController.setInputRange(-180.0f,  180.0f);
-		//turnController.setOutputRange(-1.0, 1.0);
+		turnController.enableContinuousInput(-180.0f,  180.0f);
 		turnController.setTolerance(kToleranceDegrees);
 		//Enable();
 	}
@@ -86,7 +87,8 @@ public class TurnControl //implements PIDOutput
 	
 	public void SetAngle(double value)
 	{
-		turnController.setSetpoint(value * 1f);
+		angle = value;
+		turnController.setSetpoint(value);
 	}
 	
 	public double GetAngle()
@@ -111,10 +113,9 @@ public class TurnControl //implements PIDOutput
 	
 	public double GetRotateRate()
 	{
-		System.out.println("NavX Angle: " + navx.getAngle());
-		System.out.println("Calculate: " + turnController.calculate(navx.getAngle()));
-		System.out.println("Get Position Error: " + turnController.getPositionError());
-		return kSpeed*(turnController.getPositionError()/180);
+		rotateToAngleRate = turnController.calculate(navx.getYaw(), angle);
+		System.out.println("Calculate: " + rotateToAngleRate);
+		return kSpeed * rotateToAngleRate;
 	}
 	
 	public boolean onTarget()

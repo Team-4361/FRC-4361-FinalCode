@@ -15,7 +15,7 @@ import com.revrobotics.ColorMatch;
 public class ControlPanel
 {
     private CANSparkMax spinner;
-    private ColorSensorV3 colorSensor;
+    //*private ColorSensorV3 colorSensor;
     private final ColorMatch colorMatcher;
     private final Color kBlueTarget;
     private final Color kGreenTarget;
@@ -26,10 +26,10 @@ public class ControlPanel
     CANEncoder theEnc;
 
 
-    public ControlPanel(CANSparkMax controlPanelSpark, ColorSensorV3 colorSens)
+    /*public ControlPanel(CANSparkMax controlPanelSpark, ColorSensorV3 colorSens)
     {
         this.spinner = controlPanelSpark;
-        this.colorSensor = colorSens;
+        //this.colorSensor = colorSens;
         colorMatcher = new ColorMatch();
         kBlueTarget = ColorMatch.makeColor(0.143, 0.427, 0.429);
         kGreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
@@ -42,7 +42,7 @@ public class ControlPanel
         gameData = DriverStation.getInstance().getGameSpecificMessage();
         theEnc = new CANEncoder(spinner);
         theEnc.setPosition(0);
-    }
+    }*/
 
     public ControlPanel(CANSparkMax controlPanelSpark)
     {
@@ -60,7 +60,7 @@ public class ControlPanel
     }
     
     //Collects the color that the Color Sensor sees. Returns value as a single character string.
-	public String matchColor()
+	/*public String matchColor()
     {
         ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
         if (match.color == kBlueTarget)
@@ -89,7 +89,7 @@ public class ControlPanel
     spinSpeed = double between -1.0 and 1.0 (motor speed)
     automatic = boolean, true = with sensors, false = direct control.
     */
-    public void SpinForColor(double spinSpeed, boolean automatic)
+    /*public void SpinForColor(double spinSpeed, boolean automatic)
     {
         if(automatic)
         {

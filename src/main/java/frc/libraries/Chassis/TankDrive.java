@@ -94,7 +94,7 @@ public class TankDrive implements Chassis
 			distance = (Math.max(Math.abs(lFrontEnc.getPosition()), Math.abs(rFrontEnc.getPosition())) / 42) * .36014927 * WheelDiameter*Math.PI;
 		}
 		distance *= EncoderGearRatio;
-		System.out.println(distance);
+		//distance /= CCP;
 		return distance;
 		
 	}

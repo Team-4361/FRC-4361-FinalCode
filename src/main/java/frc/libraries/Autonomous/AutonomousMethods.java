@@ -165,8 +165,8 @@ public class AutonomousMethods
 			hasRun = true;
 		}
 	  
-		 double RotateRate = turnControl.GetRotateRate();
-		 System.out.println("Rotate Rate: " + RotateRate);
+		double RotateRate = turnControl.GetRotateRate();
+		System.out.println("Rotate Rate: " + RotateRate);
 		chassis.Turn(RotateRate);
 		
 		if(turnControl.onTarget())
