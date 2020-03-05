@@ -109,6 +109,8 @@ public class Robot extends TimedRobot
 
   Timer intakeActuationTimer, shooterTimer;
 
+  boolean spunUp;
+
   boolean wait;
 
   /**
@@ -165,6 +167,7 @@ public class Robot extends TimedRobot
     theShooter = new Shooter(shooterSpark1, shooterSpark2);
     shooterTimer = new Timer();
     shooterTimer.reset();
+    spunUp=false;
 
     //CLIMBER
     ClimberSpark1 = new CANSparkMax(4, MotorType.kBrushless);
@@ -416,16 +419,22 @@ public class Robot extends TimedRobot
       if(shooterSparkEnc1.getVelocity() > 1918 && shooterSparkEnc2.getVelocity() > 1918)
       {
         theConveyer.runConveyer(1, false);
+        spunUp=true;
       }
-      else if((shooterSparkEnc1.getVelocity() > 1900 || shooterSparkEnc2.getVelocity() > 1900) && (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918))
+      else if(((shooterSparkEnc1.getVelocity() > 1900 || shooterSparkEnc2.getVelocity() > 1900) && (shooterSparkEnc1.getVelocity() < 1918 || shooterSparkEnc2.getVelocity() < 1918)) && spunUp)
       { 
-        theConveyer.runConveyer(.3, false);
+        theConveyer.runConveyer(.4, false);
+      }
+      else if((shooterSparkEnc1.getVelocity() < 1900 && shooterSparkEnc2.getVelocity() < 1900) && !spunUp)
+      { 
+        theConveyer.runConveyer(0.0, false);
       }
     }
     else
     { 
       theShooter.StopShooting();
       theConveyer.stopConveyer();
+      spunUp=false;
       wait = false;
     }
 
